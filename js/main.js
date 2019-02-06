@@ -1,4 +1,6 @@
   "use strict";
+
+
   mapboxgl.accessToken = 'pk.eyJ1IjoiZGFuc2ltbW9ucyIsImEiOiJjamRsc2NieTEwYmxnMnhsN3J5a3FoZ3F1In0.m0ct-AGSmSX2zaCMbXl0-w';
   const map = new mapboxgl.Map({
     container: 'map',
@@ -45,6 +47,16 @@
     map.getCanvas().style.cursor = '';
   });
 
+  // init App
+  const fireBaseconfig = {
+    apiKey: "AIzaSyB977vJdWTGA-JJ03xotQkeu8X4_Ds_BLQ",
+    authDomain: "fir-realtime-db-24299.firebaseapp.com",
+    databaseURL: "https://fir-realtime-db-24299.firebaseio.com",
+    projectId: "fir-realtime-db-24299",
+    storageBucket: "fir-realtime-db-24299.appspot.com",
+    messagingSenderId: "546067641349"
+  };
+  firebase.initializeApp(fireBaseconfig);
 
 
   map.on('click', e => {

@@ -22,7 +22,30 @@
 	<!-- <script type="text/javascript" src="RichmondPointsAll.js"></script> -->
 	<script type="text/javascript" src="RichmondAll.js"></script>
 	<script>
+		"use strict"
 		var map = L.map('map');
+
+		let state = {}
+		state.style = {}
+
+		state.style['Amenity grass - level'] = {
+			fillColor: "green"
+		}
+		state.style['Bench'] = {
+			color: "red"
+		}
+		state.style['Amenity grass'] = {
+			fillColor: "green"
+		}
+		state.style.default = {
+			fillColor: "gray",
+			fillOpacity: 1,
+			stroke: true,
+			fill: true,
+			color: 'black',
+			weight: 1,
+			radius: 2
+		}
 
 		var cartodbAttribution = '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>';
 		var positron = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}.png', {
@@ -30,51 +53,51 @@
 			opacity: 1
 		}).addTo(map);
 
-		var vectorGrid = L.vectorGrid.slicer(RichmondAll, {
-				rendererFactory: L.svg.tile,
-				maxZoom: 24,
-				minZoom: 14,
-				vectorTileLayerStyles: {
-					sliced: function(properties, zoom) {
-						/*
+		const propSet = f => {
+			return Object.keys(f.properties)
+				.map(item => {
+					return `${item}: ${f.properties[item]}`;
+				})
+				.join("<br>");
+		};
+		console.log("before calling slice:", Date.now())
+		const vectorGrid = L.vectorGrid.slicer(RichmondAll, {
+		// slices on every change of view ?
 
-														*/
-						if (properties.asset == "Amenity grass - level") {
-							return {
-								fillColor: "green",
-								fillOpacity: 1,
-								stroke: true,
-								fill: true,
-								color: 'black',
-								weight: 1,
-								radius: 5
-							}
-						} else {
-							return {
-								fillColor: "red",
-								fillOpacity: 1,
-								stroke: true,
-								fill: true,
-								color: 'black',
-								weight: 1,
-								radius: 5
-							}
-						}
-					}
-				},
-				interactive: true,
+		vectorTileLayerName: 'mySliced',
+		generateId: true,
+		tolerance: 10,
+		rendererFactory: L.svg.tile,
+		maxZoom: 24,
+		minZoom: 14,
+		vectorTileLayerStyles: {
+			mySliced: (properties, zoom, geoType) => {
+				const returnedStyle = state.style[properties.asset] || state.style[properties.ASSET] || state.style.default
+				Object.assign(returnedStyle, {
+					fillOpacity: 1,
+					stroke: true,
+					fill: true,
+					weight: 1,
+					radius: 3
+				})
+				return returnedStyle;
+			}
+		},
+		interactive: true,
 
-				getFeatureId: function(f) {
-					return f.properties.Asset || f.properties.asset || f.properties.ASSET;
-				}
+		//getFeatureId: function(f) {
+		//	return f.properties.Asset || f.properties.asset || f.properties.ASSET;
+		//}
+		})
 
-			})
-
-			.on('mouseover', function(e) {
-				var properties = e.layer.properties;
-				var label = properties.Asset || properties.ASSET || properties.asset
+		/*
+			.on('mouseover', e => {
+				const properties = e.layer.properties;
+				const label = properties.Asset || properties.ASSET || properties.asset
+				const popupContent = propSet(e.layer)
 				L.popup()
-					.setContent(label)
+					//.setContent(`<h4>${label}</h4><hr>${popupContent}`)
+					.setContent(`<h4>${label}</h4>`)
 					.setLatLng(e.latlng)
 					.openOn(map);
 				var style = {
@@ -88,9 +111,10 @@
 					weight: 2,
 				};
 
-				//vectorGrid.setFeatureStyle(properties.wb_a3, style);
-			})
-			.addTo(map);
+		//vectorGrid.setFeatureStyle(properties.wb_a3, style);
+		})
+		*/
+		.addTo(map);
 		/*
 				var vectorGridPoints = L.vectorGrid.slicer(RichmondPointsAll, {
 						rendererFactory: L.svg.tile,
@@ -116,7 +140,7 @@
 
 					.addTo(map);
 		*/
-
+		console.log("after calling slice:", Date.now())
 		map.setView({
 			lat: 51.430269175539856,
 			lng: -0.3615738451480866
