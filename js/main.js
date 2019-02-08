@@ -8,39 +8,41 @@
   state.settings.maps = {}
   state.settings.maps.richmondBorough = {
     url: 'mapbox://styles/dansimmons/cjqusg2fq1jp62srv0zdgz6c5',
-    name: 'Richmond Borough parks',
+    mapName: 'Richmond Borough parks',
     center: {
       lat: 51.443858500160644,
       lng: -0.3215425160765335
-    }
+    },
+    hasRelatedData: false,
   }
   state.settings.maps.hounslowBorough = {
     url: 'mapbox://styles/dansimmons/cjrrodbqq01us2slmro016y8b',
-    name: 'Richmond Borough parks',
+    mapName: 'Hounslow Borough parks',
     center: {
       lat: 51.44156782214026,
       lng: -0.4432747195056663
-    }
+    },
+    firebaseMapId: '-LR7CewcYJ2ZUDgCJSK8',
+    hasRelatedData: true,
   }
-  state.currentMapId = {}
+  state.settings.currentMapId = 'richmondBorough'
 
   const armIsStyleLoaded = () => {
     if (map.isStyleLoaded()) {
-        map.off('data', armIsStyleLoaded)
+      map.off('data', armIsStyleLoaded)
       console.log("finally loaded")
       const mapID = state.settings.currentMapId
       map.setCenter(state.settings.maps[mapID].center)
-      map.setZoom (11)
-
+      map.setZoom(11)
+      document.getElementById('map-name').innerHTML = state.settings.maps[mapID].mapName
     }
   }
 
-
   const map = new mapboxgl.Map({
     container: 'map',
-    style: 'mapbox://styles/dansimmons/cjqusg2fq1jp62srv0zdgz6c5', // contains all layers with data - Richmond
+    style: (state.settings.maps[state.settings.currentMapId].url), // contains all layers with data - Richmond
     //style: 'mapbox://styles/dansimmons/cjrrodbqq01us2slmro016y8b', //hounslow
-    center: [-0.3057026311378195, 51.45959256841422],
+    center: (state.settings.maps[state.settings.currentMapId].center),
     zoom: 12,
     maxZoom: 22,
     minZoom: 11,
@@ -89,6 +91,28 @@
 
   });
 
+  const fetchLastFirebaseRelatedData = obId => {
+    const path = `/App/Maps/${state.settings.maps[state.settings.currentMapId].firebaseMapId}/Related/${obId}`
+    fbDatabase.ref(path).orderByKey().limitToLast(1).once('value').then(
+      snap => {
+        // set popup from props of the last relData entry  for the feature
+        const propObject = Object.values(snap.val())[0]
+        if (propObject) {
+          document.getElementById("reldata").innerHTML = propSet(propObject)
+        }
+      }
+    )
+  }
+
+  const propSet = p => {
+    return Object.keys(p)
+      .map(item => {
+        return `${item}: ${p[item]}`;
+      })
+      .join("<br>");
+  };
+
+
   // init App
   const fireBaseconfig = {
     apiKey: "AIzaSyB977vJdWTGA-JJ03xotQkeu8X4_Ds_BLQ",
@@ -99,6 +123,7 @@
     messagingSenderId: "546067641349"
   };
   firebase.initializeApp(fireBaseconfig);
+  const fbDatabase = firebase.database();
   armIsStyleLoaded();
 
   map.on('click', e => {
@@ -109,16 +134,17 @@
       return;
     }
     const feature = features[0];
-    const propSet = f => {
-      return Object.keys(f.properties)
-        .map(item => {
-          return `${item}: ${f.properties[item]}`;
-        })
-        .join("<br>");
-    };
+
+    if (state.settings.maps[state.settings.currentMapId].hasRelatedData) {
+      const obId = feature.properties.OBJECTID + feature.geometry.type
+      fetchLastFirebaseRelatedData(obId)
+
+    }
     const p = feature.properties
     const popupTitle = p.ASSET || p.Asset || p.asset
-    const popupContent = `<h4>${popupTitle}</h4>${propSet(feature)}`
+    //const popupFeatureContent = propSet(feature)
+    //document.getElementById("popup-feature-template").innerHTML = propSet(feature)
+    const popupContent = `<h4>${popupTitle}</h4><p>${propSet(feature.properties)}</p><hr><p id='reldata'>no related data</p>`
     const popup = new mapboxgl.Popup({
         offset: [0, -15]
       })

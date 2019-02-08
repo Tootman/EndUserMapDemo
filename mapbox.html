@@ -35,8 +35,15 @@
 </head>
 
 <body>
+  <template id="popup-template">
+    <h4 id="popup-title-template"> </h4>
+    <p id="popup-feature-template"> </p>
+    <hr>
+    <p id="popup-related-data-template">no related data </p>
+  </template>
+
   <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">EndUserMap</a>
+    <a class="navbar-brand" href="#">EndUserMap - <span id="map-name"></span></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -50,6 +57,7 @@
             <a class="dropdown-item" onClick="selectNewMap('richmondBorough')" href="#">Richmond Borough</a>
           </div>
         </li>
+
         <li class="nav-item">
           <a class="nav-link dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Log in </a>
