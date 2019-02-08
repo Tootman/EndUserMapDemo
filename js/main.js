@@ -26,10 +26,12 @@
 
   const armIsStyleLoaded = () => {
     if (map.isStyleLoaded()) {
+        map.off('data', armIsStyleLoaded)
       console.log("finally loaded")
       const mapID = state.settings.currentMapId
       map.setCenter(state.settings.maps[mapID].center)
-      map.off('data', armIsStyleLoaded)
+      map.setZoom (11)
+
     }
   }
 
