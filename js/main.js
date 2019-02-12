@@ -2,7 +2,7 @@
   //
 
   mapboxgl.accessToken = 'pk.eyJ1IjoiZGFuc2ltbW9ucyIsImEiOiJjamRsc2NieTEwYmxnMnhsN3J5a3FoZ3F1In0.m0ct-AGSmSX2zaCMbXl0-w';
-
+alert ("End User Map v 0.9.007")
   const state = {}
   state.settings = {}
   state.settings.maps = {}
@@ -100,6 +100,23 @@
         if (propObject) {
           document.getElementById("reldata").innerHTML = propSet(propObject)
         }
+        const storage = firebase.storage();
+        const pathRef = storage.ref('hounslow/thumbnails/');
+        pathRef.child('example-photo.jpg').getDownloadURL().then(url => {
+          fetch(url)
+            .then(response => {
+              //alert("blobReturned!:", url)
+              return response.blob();
+            })
+            .then(imageBlob => {
+              //alert ("blob then ..")
+               document.getElementById('related-image').src = URL.createObjectURL(imageBlob);
+              //document.getElementById('related-image').src ="example-photo.jpg"
+            })
+            .catch(error =>{
+              //alert ("Error!:", error.message)
+            })
+        });
       }
     )
   }
@@ -138,13 +155,14 @@
     if (state.settings.maps[state.settings.currentMapId].hasRelatedData) {
       const obId = feature.properties.OBJECTID + feature.geometry.type
       fetchLastFirebaseRelatedData(obId)
-
     }
+
     const p = feature.properties
     const popupTitle = p.ASSET || p.Asset || p.asset
     //const popupFeatureContent = propSet(feature)
     //document.getElementById("popup-feature-template").innerHTML = propSet(feature)
-    const popupContent = `<h4>${popupTitle}</h4><p>${propSet(feature.properties)}</p><hr><p id='reldata'>no related data</p>`
+    const popupContent = `<h4>${popupTitle}</h4><p>${propSet(feature.properties)}</p><hr><p id='reldata'>no related data</p><img id="related-image" width="300"/>`
+    //const popupContent = `<img id="related-image" src="example-photo.jpg"/>`
     const popup = new mapboxgl.Popup({
         offset: [0, -15]
       })
