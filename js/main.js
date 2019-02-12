@@ -110,7 +110,9 @@
             })
             .then(imageBlob => {
               //alert ("blob then ..")
-              document.getElementById('related-image').src = URL.createObjectURL(imageBlob);
+              const el = document.getElementById('related-image')
+              el.src = URL.createObjectURL(imageBlob);
+              el.width= 280;
               //document.getElementById('related-image').src ="example-photo.jpg"
             })
             .catch(error => {
@@ -161,8 +163,12 @@
     const popupTitle = p.ASSET || p.Asset || p.asset
     //const popupFeatureContent = propSet(feature)
     //document.getElementById("popup-feature-template").innerHTML = propSet(feature)
-    const popupContent = `<h4>${popupTitle}</h4><p>${propSet(feature.properties)}</p><hr><p id='reldata'>no related data</p><img id="related-image" width="300"/>`
+const modalContent = `<h4>${popupTitle}</h4><p>${propSet(feature.properties)}</p>`
+
+    const popupContent = `<h4>${popupTitle}</h4><p><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+    Details ...</button><p id='reldata'>no related data</p><img id="related-image"/>`
     //const popupContent = `<img id="related-image" src="example-photo.jpg"/>`
+    document.querySelector(".modal-body").innerHTML = modalContent
     const popup = new mapboxgl.Popup({
         offset: [0, -15]
       })
