@@ -2,7 +2,7 @@
   //
 
   mapboxgl.accessToken = 'pk.eyJ1IjoiZGFuc2ltbW9ucyIsImEiOiJjamRsc2NieTEwYmxnMnhsN3J5a3FoZ3F1In0.m0ct-AGSmSX2zaCMbXl0-w';
-alert ("End User Map v 0.9.007")
+  alert("End User Map v 0.9.009")
   const state = {}
   state.settings = {}
   state.settings.maps = {}
@@ -80,7 +80,7 @@ alert ("End User Map v 0.9.007")
     map.setStyle(state.settings.maps[mapID].url)
     state.settings.currentMapId = mapID // fudge - come back to
     map.on('data', armIsStyleLoaded)
-
+    document.getElementById("navbarToggler").classList.remove("show")
   }
 
   map.on('mouseenter', "points-symbol", e => {
@@ -110,10 +110,10 @@ alert ("End User Map v 0.9.007")
             })
             .then(imageBlob => {
               //alert ("blob then ..")
-               document.getElementById('related-image').src = URL.createObjectURL(imageBlob);
+              document.getElementById('related-image').src = URL.createObjectURL(imageBlob);
               //document.getElementById('related-image').src ="example-photo.jpg"
             })
-            .catch(error =>{
+            .catch(error => {
               //alert ("Error!:", error.message)
             })
         });
