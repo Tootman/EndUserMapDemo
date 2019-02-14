@@ -13,11 +13,11 @@ processing is upon entire dataset)
 
 - AddPoints:
 - - Persist between sessions ? Manage cached Firebase pushes (similar to RelatedData push)
-- - reset or remove when new map loaded
-- - Move popupcontent to Flyout panel
 - - icon dependent on point 'type'
 
 ### Features
+ - Append related Data from Firebase database to infoWindow 
+  - Append related Photo from Firebase storage to infoWindow
 
 
 ## User guidance / notes
@@ -26,25 +26,29 @@ processing is upon entire dataset)
 ### device requirements
 
 - Connection to internet
+ - Chrome browser
 
 
 ### feature wish-list
 
- - Handle Photo related to feature
--  handle Related data (by appending data from Firebase Database  - however OBJECTID not used in Richmond Dataset)
-- onHoverOver  infoBox for feature props (tried to implement - but couldn't get to work)
+ - Add related Data form and submit (for logged in user)
+ - Add new Point (for logged in User)
+  - 
 
 ### Bugs / issues
-- difficult to select Line features when using touch device (tablet/phone)
- - Some properties of some assets not displayed (issue with importing/serving/converting TileSet)
+- difficult to select Line features (and some dot points) when using touch device (tablet/phone)
+ - how to highlight the selected feature
+ - Some properties of some assets not displayed (issue with importing/serving/converting TileSet?)
+ - some torn / distorted / corrupted polygons eg see Richmond terrace gdns
 
 
 ### dev notes
 
-- Not yet configured for webpack (ie no minified, scss, babel, bundled )
-- not yet attached to Firebase database
+- Not yet configured for webpack (ie no minified, scss, not transpiled to es6 from es6 -  babel, bundled )
+
 
 ### user stories
+- Council - 'I want to know what assets I have and where there are'.
 
 
 ### Functional specification (pseudocode)

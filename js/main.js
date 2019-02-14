@@ -2,7 +2,7 @@
   //
 
   mapboxgl.accessToken = 'pk.eyJ1IjoiZGFuc2ltbW9ucyIsImEiOiJjamRsc2NieTEwYmxnMnhsN3J5a3FoZ3F1In0.m0ct-AGSmSX2zaCMbXl0-w';
-  alert("End User Map v 0.9.009")
+  alert("End User Map v 0.9.010")
   const state = {}
   state.settings = {}
   state.settings.maps = {}
@@ -65,8 +65,12 @@
     'lines-all-other'
   ] // replace this with the name of the layer
 
-  let allLayers = lineLayers
-  allLayers.push('points-symbol')
+  let pointsAndLineLayers = lineLayers
+  pointsAndLineLayers.push('points-symbol')
+
+const allLayers = pointsAndLineLayers
+allLayers.push('polygons')
+
   lineLayers.map(layer => {
     map.on('mouseenter', layer, e => {
       map.getCanvas().style.cursor = 'cell';
@@ -98,7 +102,8 @@
         // set popup from props of the last relData entry  for the feature
         const propObject = Object.values(snap.val())[0]
         if (propObject) {
-          document.getElementById("reldata").innerHTML = propSet(propObject)
+          //document.getElementById("reldata").innerHTML = propSet(propObject)
+          document.querySelector(".modal-related-data").innerHTML = propSet(propObject)
         }
         const storage = firebase.storage();
         const pathRef = storage.ref('hounslow/thumbnails/');
@@ -110,9 +115,9 @@
             })
             .then(imageBlob => {
               //alert ("blob then ..")
-              const el = document.getElementById('related-image')
+              const el = document.querySelector('.related-image')
               el.src = URL.createObjectURL(imageBlob);
-              el.width= 280;
+              el.style.width = '100%'
               //document.getElementById('related-image').src ="example-photo.jpg"
             })
             .catch(error => {
@@ -147,7 +152,7 @@
 
   map.on('click', e => {
     const features = map.queryRenderedFeatures(e.point, {
-      layers: allLayers
+      layers: pointsAndLineLayers
     });
     if (!features.length) {
       return;
@@ -163,12 +168,13 @@
     const popupTitle = p.ASSET || p.Asset || p.asset
     //const popupFeatureContent = propSet(feature)
     //document.getElementById("popup-feature-template").innerHTML = propSet(feature)
-const modalContent = `<h4>${popupTitle}</h4><p>${propSet(feature.properties)}</p>`
+    const modalContent = `<h4>${popupTitle}</h4><p>${propSet(feature.properties)}</p>`
 
-    const popupContent = `<h4>${popupTitle}</h4><p><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
-    Details ...</button><p id='reldata'>no related data</p><img id="related-image"/>`
+    const popupContent = `<h4>${popupTitle}</h4>
+    <p><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+    Details ...</button>`
     //const popupContent = `<img id="related-image" src="example-photo.jpg"/>`
-    document.querySelector(".modal-body").innerHTML = modalContent
+    document.querySelector(".modal-feature-attr").innerHTML = modalContent
     const popup = new mapboxgl.Popup({
         offset: [0, -15]
       })
