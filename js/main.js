@@ -2,7 +2,7 @@
   //
 
   mapboxgl.accessToken = 'pk.eyJ1IjoiZGFuc2ltbW9ucyIsImEiOiJjamRsc2NieTEwYmxnMnhsN3J5a3FoZ3F1In0.m0ct-AGSmSX2zaCMbXl0-w';
-  alert("End User Map v 0.9.010")
+  alert("End User Map v 0.9.011")
   const state = {}
   state.settings = {}
   state.settings.maps = {}
@@ -43,7 +43,7 @@
     style: (state.settings.maps[state.settings.currentMapId].url), // contains all layers with data - Richmond
     //style: 'mapbox://styles/dansimmons/cjrrodbqq01us2slmro016y8b', //hounslow
     center: (state.settings.maps[state.settings.currentMapId].center),
-    zoom: 12,
+    zoom: 13,
     maxZoom: 23,
     minZoom: 10,
     sprite: "mapbox://sprites/mapbox/bright-v8" //
@@ -54,7 +54,8 @@
     positionOptions: {
       enableHighAccuracy: true
     },
-    trackUserLocation: true
+    trackUserLocation: true,
+    fitBoundsOptions:{zoom: 19}
   }));
 
   let lineLayers = [
@@ -195,4 +196,15 @@
 
   map.on('zoom', () => {
     // console.log("mapZoom:", map.getZoom())
+  });
+
+  const scaleControl = new mapboxgl.ScaleControl({
+    maxWidth: 80,
+    unit: 'imperial'
+  });
+  map.addControl(scaleControl);
+  scaleControl.setUnit('metric');
+
+  map.on('geolocate', () => {
+    alert("geolocate!")
   });

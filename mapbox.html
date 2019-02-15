@@ -79,6 +79,15 @@
       width: 100%; */
       height: 90vh;
     }
+
+    .navbar-dark .navbar-nav .show>.nav-link {
+    /*color: #505050; */
+}
+
+a.dropdown-item.nav-link:hover {
+  background-color: #eaff7a;
+}
+
   </style>
 </head>
 
@@ -98,8 +107,8 @@
           <a class="nav-link dropdown-toggle" href="#" role="button" id="sitelinks" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Open</a>
           <div class="dropdown-menu" aria-labelledby="sitelinks">
-            <a class="dropdown-item navbar-collapse" onClick="selectNewMap('hounslowBorough')" href="#">Hounslow Borough</a>
-            <a class="dropdown-item" onClick="selectNewMap('richmondBorough')" href="#">Richmond Borough</a>
+            <a class="dropdown-item nav-link navbar-collapse" onClick="selectNewMap('hounslowBorough')" href="#">Hounslow Borough</a>
+            <a class="dropdown-item nav-link" onClick="selectNewMap('richmondBorough')" href="#">Richmond Borough</a>
           </div>
         </li>
 
