@@ -30,6 +30,47 @@
      max-width: 320px
 }
 
+/*
+.table td {
+    padding-bottom: 1px;
+    padding-top: 1px;
+    border: none;
+}
+
+
+*/
+/*
+
+.modal.left .modal-dialog {
+	position: fixed;
+	margin: auto;
+	width: 320px;
+	height: 100%;
+	-webkit-transform: translate3d(0%, 0, 0);
+	-ms-transform: translate3d(0%, 0, 0);
+	-o-transform: translate3d(0%, 0, 0);
+	transform: translate3d(0%, 0, 0);
+}
+
+.modal.left.fade .modal-dialog {
+	left: -320px;
+	-webkit-transition: opacity 0.3s linear, left 0.3s ease-out;
+	-moz-transition: opacity 0.3s linear, left 0.3s ease-out;
+	-o-transition: opacity 0.3s linear, left 0.3s ease-out;
+	transition: opacity 0.3s linear, left 0.3s ease-out;
+}
+
+.modal.left.fade.show .modal-dialog {
+	left: 0;
+}
+*/
+
+.modal-related-data h4 {
+    background-color: #51ac74;
+    color: white;
+    text-align: center;
+    padding: 2px;
+}
 
     #map {
       /*position: absolute;
@@ -81,8 +122,8 @@
   </nav>
   <div id='map'></div>
   <!-- The Modal -->
-  <div class="modal" id="myModal">
-    <div class="modal-dialog">
+  <div class="modal fade" id="myModal">
+    <div class=" modal-dialog">
       <div class="modal-content">
         <!-- Modal Header -->
         <div class="modal-header">
@@ -94,7 +135,7 @@
           <div class="modal-feature-attr"></div>
           <hr>
           <div class="modal-related-data">no related data</div>
-          <img class="related-image"></img>
+          <img class="modal-related-image"></img>
         </div>
         <!-- Modal footer -->
         <div class="modal-footer">

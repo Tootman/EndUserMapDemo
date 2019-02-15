@@ -44,8 +44,8 @@
     //style: 'mapbox://styles/dansimmons/cjrrodbqq01us2slmro016y8b', //hounslow
     center: (state.settings.maps[state.settings.currentMapId].center),
     zoom: 12,
-    maxZoom: 22,
-    minZoom: 11,
+    maxZoom: 23,
+    minZoom: 10,
     sprite: "mapbox://sprites/mapbox/bright-v8" //
   });
 
@@ -68,8 +68,8 @@
   let pointsAndLineLayers = lineLayers
   pointsAndLineLayers.push('points-symbol')
 
-const allLayers = pointsAndLineLayers
-allLayers.push('polygons')
+  const allLayers = pointsAndLineLayers
+  allLayers.push('polygons')
 
   lineLayers.map(layer => {
     map.on('mouseenter', layer, e => {
@@ -103,7 +103,9 @@ allLayers.push('polygons')
         const propObject = Object.values(snap.val())[0]
         if (propObject) {
           //document.getElementById("reldata").innerHTML = propSet(propObject)
-          document.querySelector(".modal-related-data").innerHTML = propSet(propObject)
+          let relatedDataContent = `<h4>Related Data</h4>`
+          relatedDataContent += propSet(propObject)
+          document.querySelector(".modal-related-data").innerHTML = relatedDataContent
         }
         const storage = firebase.storage();
         const pathRef = storage.ref('hounslow/thumbnails/');
@@ -115,7 +117,7 @@ allLayers.push('polygons')
             })
             .then(imageBlob => {
               //alert ("blob then ..")
-              const el = document.querySelector('.related-image')
+              const el = document.querySelector('.modal-related-image')
               el.src = URL.createObjectURL(imageBlob);
               el.style.width = '100%'
               //document.getElementById('related-image').src ="example-photo.jpg"
@@ -129,11 +131,11 @@ allLayers.push('polygons')
   }
 
   const propSet = p => {
-    return Object.keys(p)
+    const itemList = Object.keys(p)
       .map(item => {
-        return `${item}: ${p[item]}`;
-      })
-      .join("<br>");
+        return `<tr><td>${item}</td><td>${p[item]}</td>`;
+      }).join("</tr>")
+    return `<table class="table table-sm table-responsive-sm table-striped">${itemList}</table>`
   };
 
 
@@ -168,13 +170,13 @@ allLayers.push('polygons')
     const popupTitle = p.ASSET || p.Asset || p.asset
     //const popupFeatureContent = propSet(feature)
     //document.getElementById("popup-feature-template").innerHTML = propSet(feature)
-    const modalContent = `<h4>${popupTitle}</h4><p>${propSet(feature.properties)}</p>`
+    const modalContent = `${propSet(feature.properties)}</p>`
 
-    const popupContent = `<h4>${popupTitle}</h4>
-    <p><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+    const popupContent = `<h4>${popupTitle}</h4><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
     Details ...</button>`
     //const popupContent = `<img id="related-image" src="example-photo.jpg"/>`
     document.querySelector(".modal-feature-attr").innerHTML = modalContent
+    document.querySelector(".modal-title").innerHTML = popupTitle
     const popup = new mapboxgl.Popup({
         offset: [0, -15]
       })
