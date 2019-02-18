@@ -64,11 +64,12 @@ left: 0;
     height: 90vh;
   }
 
-  .navbar-dark .navbar-nav .show>.nav-link {
-  /*color: #505050; */
-}
-
-a.dropdown-item.navbar-collapse:hover {
-    color: white;
-    background-color: gray;
-}
+/*
+  .dropdown-menu.show {
+      background-color: dimgray;
+  }
+*/
+  a.dropdown-item.nav-linkx.navbar-collapse:hover {
+      color: white;
+      background-color: dimgrey;
+  }

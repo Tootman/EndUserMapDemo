@@ -35,7 +35,7 @@
       const mapID = state.settings.currentMapId
       map.setCenter(state.settings.maps[mapID].center)
       map.setZoom(11)
-      document.getElementById('map-name').innerHTML = state.settings.maps[mapID].mapName
+      document.getElementById('map-name').innerHTML =" - " + state.settings.maps[mapID].mapName
     }
   }
 
