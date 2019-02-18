@@ -2,12 +2,13 @@
   //
 
   mapboxgl.accessToken = 'pk.eyJ1IjoiZGFuc2ltbW9ucyIsImEiOiJjamRsc2NieTEwYmxnMnhsN3J5a3FoZ3F1In0.m0ct-AGSmSX2zaCMbXl0-w';
-  alert("End User Map v 0.9.011")
+  alert("End User Map v 0.9.012")
   const state = {}
   state.settings = {}
   state.settings.maps = {}
   state.settings.maps.richmondBorough = {
     url: 'mapbox://styles/dansimmons/cjqusg2fq1jp62srv0zdgz6c5',
+    //url: "mapbox://styles/dansimmons/cjsa8mwbw2bts1gs6p3jdte1o",
     mapName: 'Richmond Borough parks',
     center: {
       lat: 51.443858500160644,
@@ -55,7 +56,9 @@
       enableHighAccuracy: true
     },
     trackUserLocation: true,
-    fitBoundsOptions:{zoom: 19}
+    fitBoundsOptions: {
+      zoom: 19
+    }
   }));
 
   let lineLayers = [
