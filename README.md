@@ -36,8 +36,7 @@ processing is upon entire dataset)
   - 
 
 ### Bugs / issues
-- difficult to select Line features (and some dot points) when using touch device (tablet/phone)
- - how to highlight the selected feature
+ 
  - Some properties of some assets not displayed (issue with importing/serving/converting TileSet?)
  - some torn / distorted / corrupted polygons eg see Richmond terrace gdns
 
@@ -56,10 +55,8 @@ onLoad:
   - load Mapbox style
    - attach onClick listeners to Mapdata points, polygons, and the various seperately styled lines LayersControl
 
-### Behaviour:
-
-
 
 ### Technology stack
 
 Mapbox (which uses leaflet and  TileMill)
+Firebase for for map meta data (map notes, comments points, photos maybe )
