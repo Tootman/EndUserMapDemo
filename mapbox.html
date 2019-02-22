@@ -8,8 +8,7 @@
   <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.49.0/mapbox-gl.js'></script>
   <script src="https://cdn.jsdelivr.net/npm/@turf/turf@5/turf.min.js"></script>
   <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.49.0/mapbox-gl.css' rel='stylesheet' />
-  <link href='https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.4.2/fuse.min.js'>
-  </script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.4.2/fuse.min.js'> </script>
 
   <!-- <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.3.0/mapbox-gl-geocoder.min.js'></script> -->
   <!-- <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.3.0/mapbox-gl-geocoder.css' type='text/css' /> -->
@@ -60,7 +59,7 @@
         </li>
       </ul>
       <form class="form-inline my-2 my-lg-0">
-        <input class="form-control mr-sm-2" type="search" onkeydown = "searchUpdate()" onfocus="searchBoxOnFocus()" id="search-box" placeholder="Search Assets (Not yet working)">
+        <input class="form-control mr-sm-2" type="search" onkeyup = "searchUpdate()" onfocus="searchBoxOnFocus()" id="search-box" placeholder="Search Assets (Not yet working)">
         <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
       </form>
     </div>

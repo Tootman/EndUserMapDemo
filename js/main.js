@@ -27,7 +27,8 @@
     firebaseMapId: '-LR7CewcYJ2ZUDgCJSK8',
     hasRelatedData: true,
   }
-  state.settings.currentMapId = 'richmondBorough'
+  state.settings.currentMapId = 'richmondBorough',
+    state.sitesQueryResult = {}
 
   const armIsStyleLoaded = () => {
     if (map.isStyleLoaded()) {
@@ -87,16 +88,33 @@
 
   const searchUpdate = () => {
     const searchBox = document.getElementById("search-box")
-    console.log(searchBox.value)
-    var options = {
-      keys: ['title', 'author'],
-      id: 'ISBN'
+    //console.log(searchBox.value)
+    const options = {
+      keys: ['properties.Site_Name'
+        //, 'properties.Ward',
+        // 'properties.Category'
+      ],
+      //minMatchCharLength: 3,
+      shouldSort: true,
+      //includeMatches: true,
+      threshold: 0.1
     }
+    const fuse = new Fuse(state.sitesQueryResult, options);
+    const result = fuse.search(searchBox.value);
+    //console.log(result)
   }
 
   const searchBoxOnFocus = () => {
+    // todo: why not orignal shp properties appearing in object!!??
     console.log("focus!")
-    getSiteNameList()
+    //const siteNames = siteNamesArr('richmondsitenames-EPSG-4326-23yist')
+    state.sitesQueryResult = map.querySourceFeatures('composite', {
+      'sourceLayer': 'richmondsitenames-EPSG-4326-23yist'
+      // ,filter: ['==', 'Site_Name', 'Grove Road Gardens']
+    })
+
+
+    console.log("done!")
   }
 
   const siteNamesArr = (sourceLayer) => {
@@ -126,32 +144,16 @@
     //turf.bbox()
   }
 
-
-
   const populateDropDownSites = () => {
-    const sites = map.querySourceFeatures('composite', {
-      'sourceLayer': 'richmondsitenames-EPSG-4326-23yist'
-      // ,filter: ['==', 'Site_Name', 'Grove Road Gardens']
-    })
     const el = document.getElementById("site-dropdown-div")
     el.innerHTML = null
     let myList = ""
-    // todo: somehow use new Set to create new ob of site names with dups  removed
-    /*
-        renderedSitePolys.map(feature => {
-          myList += `<a href="#" class="dropdown-item nav-linkx navbar-collapse">${feature.properties.Site_Name}</a> `
-        })
-    */
-    const sitesSet = new Set(sites.map(site => {
-      return site.properties.Site_Name
-    }))
-    const sitesArray = Array.from(sitesSet).sort()
+    const sitesArray = siteNamesArr('richmondsitenames-EPSG-4326-23yist')
     sitesArray.map(siteName => {
       myList += `<a href="#" class="dropdown-item nav-linkx navbar-collapse"  onClick = "flyTo('${siteName}')">${siteName})</a> `
     })
     myList += `<hr><p style="color:white;padding:1em; background-color:#b2715d">If you can't see the site <br> you are looking for<br> then try zooming out</p>`
     el.innerHTML = myList
-    //console.log(renderedSitePolys)
   }
 
   const selectNewMap = (mapID) => {
