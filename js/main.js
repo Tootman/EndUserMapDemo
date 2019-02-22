@@ -2,7 +2,7 @@
   //
 
   mapboxgl.accessToken = 'pk.eyJ1IjoiZGFuc2ltbW9ucyIsImEiOiJjamRsc2NieTEwYmxnMnhsN3J5a3FoZ3F1In0.m0ct-AGSmSX2zaCMbXl0-w';
-  alert("End User Map v 0.9.012")
+  alert("End User Map v 0.9.013")
   const state = {}
   state.settings = {}
   state.settings.maps = {}
@@ -10,6 +10,7 @@
     url: 'mapbox://styles/dansimmons/cjqusg2fq1jp62srv0zdgz6c5',
     //url: "mapbox://styles/dansimmons/cjsa8mwbw2bts1gs6p3jdte1o",
     mapName: 'Richmond Borough parks',
+    sitesSource: 'richmondsitenames-EPSG-4326-23yist',
     center: {
       lat: 51.443858500160644,
       lng: -0.3215425160765335
@@ -35,7 +36,7 @@
       const mapID = state.settings.currentMapId
       map.setCenter(state.settings.maps[mapID].center)
       map.setZoom(11)
-      document.getElementById('map-name').innerHTML =" - " + state.settings.maps[mapID].mapName
+      document.getElementById('map-name').innerHTML = " - " + state.settings.maps[mapID].mapName
     }
   }
 
@@ -84,11 +85,81 @@
     });
   })
 
+  const searchUpdate = () => {
+    const searchBox = document.getElementById("search-box")
+    console.log(searchBox.value)
+    var options = {
+      keys: ['title', 'author'],
+      id: 'ISBN'
+    }
+  }
+
+  const searchBoxOnFocus = () => {
+    console.log("focus!")
+    getSiteNameList()
+  }
+
+  const siteNamesArr = (sourceLayer) => {
+    const sites = map.querySourceFeatures('composite', {
+      'sourceLayer': sourceLayer
+      // ,filter: ['==', 'Site_Name', 'Grove Road Gardens']
+    })
+    const sitesSet = new Set(sites.map(site => {
+      return site.properties.Site_Name
+    }))
+    return Array.from(sitesSet).sort()
+  }
+
+  const flyTo = siteName => {
+    // queryAllFeatures
+    console.log("siteName:", siteName)
+    const sites = map.querySourceFeatures('composite', {
+      'sourceLayer': 'richmondsitenames-EPSG-4326-23yist'
+      // ,filter: ['==', 'Site_Name', 'Grove Road Gardens']
+    })
+    // return match where properties.Site_Name = Site_Name
+    const site = sites.filter(site => {
+      return site.properties.Site_Name == siteName
+    })
+    console.log("site:", site)
+    map.fitBounds(turf.bbox(site[0])) // fails with array
+    //turf.bbox()
+  }
+
+
+
+  const populateDropDownSites = () => {
+    const sites = map.querySourceFeatures('composite', {
+      'sourceLayer': 'richmondsitenames-EPSG-4326-23yist'
+      // ,filter: ['==', 'Site_Name', 'Grove Road Gardens']
+    })
+    const el = document.getElementById("site-dropdown-div")
+    el.innerHTML = null
+    let myList = ""
+    // todo: somehow use new Set to create new ob of site names with dups  removed
+    /*
+        renderedSitePolys.map(feature => {
+          myList += `<a href="#" class="dropdown-item nav-linkx navbar-collapse">${feature.properties.Site_Name}</a> `
+        })
+    */
+    const sitesSet = new Set(sites.map(site => {
+      return site.properties.Site_Name
+    }))
+    const sitesArray = Array.from(sitesSet).sort()
+    sitesArray.map(siteName => {
+      myList += `<a href="#" class="dropdown-item nav-linkx navbar-collapse"  onClick = "flyTo('${siteName}')">${siteName})</a> `
+    })
+    myList += `<hr><p style="color:white;padding:1em; background-color:#b2715d">If you can't see the site <br> you are looking for<br> then try zooming out</p>`
+    el.innerHTML = myList
+    //console.log(renderedSitePolys)
+  }
+
   const selectNewMap = (mapID) => {
     map.setStyle(state.settings.maps[mapID].url)
     state.settings.currentMapId = mapID // fudge - come back to
     map.on('data', armIsStyleLoaded)
     document.getElementById("navbarToggler").classList.remove("show")
+    //renderedSitePolys()
   }
 
   map.on('mouseenter', "points-symbol", e => {
@@ -190,12 +261,19 @@
   });
 
   // https://www.mapbox.com/mapbox-gl-js/example/filter-features-within-map-view/
+
   map.on('moveend', () => {
-    const features = map.queryRenderedFeatures({
-      layers: ['points-symbol']
-    })
-    //console.log(features)
+    //repopulateData()
+    /*
+                  const features = map.queryRenderedFeatures({
+                    layers: ['points-symbol']
+                  })
+                  //console.log(features)
+    */
   });
+
+
+
 
   map.on('zoom', () => {
     // console.log("mapZoom:", map.getZoom())

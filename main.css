@@ -73,3 +73,8 @@ left: 0;
       color: white;
       background-color: dimgrey;
   }
+
+.navbar-expand-lg .navbar-nav .dropdown-menu{
+      max-height: 300px;
+      overflow-y: scroll;
+  }
