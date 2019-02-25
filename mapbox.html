@@ -61,9 +61,16 @@
           </div>
         </li>
       </ul>
+      <!--
       <form class="form-inline my-2 my-lg-0">
         <input class="form-control mr-sm-2" type="search" onfocus="searchBoxOnFocus()" id="search-box" placeholder="Search Assets (Not yet working)">
         <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+      </form>
+-->
+      <form class="form-inline my-2 my-lg-0" autocomplete="off">
+        <div class="autocomplete" style="width:300px;">
+          <input id="myInput" type="text" onfocus="searchBoxOnFocus()" name="myCountry" placeholder="Zoom in to site ...">
+        </div>
       </form>
 
     </div>
