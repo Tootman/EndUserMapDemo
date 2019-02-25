@@ -41,6 +41,8 @@
     }
   }
 
+  // $('#editable-select').editableSelect(); // aborted effort to use to replace search
+
   const map = new mapboxgl.Map({
     container: 'map',
     style: (state.settings.maps[state.settings.currentMapId].url), // contains all layers with data - Richmond
@@ -86,6 +88,7 @@
     });
   })
 
+/*
   const searchUpdate = () => {
     const searchBox = document.getElementById("search-box")
     //console.log(searchBox.value)
@@ -103,6 +106,7 @@
     const result = fuse.search(searchBox.value);
     //console.log(result)
   }
+*/
 
   const searchBoxOnFocus = () => {
     // todo: why not orignal shp properties appearing in object!!??
@@ -113,9 +117,13 @@
       // ,filter: ['==', 'Site_Name', 'Grove Road Gardens']
     })
 
+    //$( "#search-box" ).attr("placeholder", "xx!");
+
 
     console.log("done!")
   }
+
+
 
   const siteNamesArr = (sourceLayer) => {
     const sites = map.querySourceFeatures('composite', {
