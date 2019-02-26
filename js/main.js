@@ -10,7 +10,7 @@
     url: 'mapbox://styles/dansimmons/cjqusg2fq1jp62srv0zdgz6c5',
     //url: "mapbox://styles/dansimmons/cjsa8mwbw2bts1gs6p3jdte1o",
     mapName: 'Richmond Borough parks',
-    sitesSource: 'richmondsitenames-EPSG-4326-23yist',
+    dataSource: 'richmondsitenames-EPSG-4326-23yist',
     center: {
       lat: 51.443858500160644,
       lng: -0.3215425160765335
@@ -21,6 +21,7 @@
   state.settings.maps.hounslowBorough = {
     url: 'mapbox://styles/dansimmons/cjrrodbqq01us2slmro016y8b',
     mapName: 'Hounslow Borough parks',
+    dataSource: 'hounslow-borough-park-names-p-9yc84m',
     center: {
       lat: 51.44156782214026,
       lng: -0.4432747195056663
@@ -110,25 +111,26 @@
     }
   */
 
-  var countries = ["Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Anguilla", "Antigua &amp; Barbuda", "Argentina", "Armenia", "Aruba", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan", "Bolivia", "Bosnia &amp; Herzegovina", "Botswana", "Brazil", "British Virgin Islands", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Cayman Islands", "Central Arfrican Republic", "Chad", "Chile", "China", "Colombia", "Congo", "Cook Islands", "Costa Rica", "Cote D Ivoire", "Croatia", "Cuba", "Curacao", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Falkland Islands", "Faroe Islands", "Fiji", "Finland", "France", "French Polynesia", "French West Indies", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Gibraltar", "Greece", "Greenland", "Grenada", "Guam", "Guatemala", "Guernsey", "Guinea", "Guinea Bissau", "Guyana", "Haiti", "Honduras", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Isle of Man", "Israel", "Italy", "Jamaica"]
 
   const searchBoxOnFocus = () => {
     // todo: why not orignal shp properties appearing in object!!??
     console.log("focus!")
+const mapId = state.settings.currentMapId
     //const siteNames = siteNamesArr('richmondsitenames-EPSG-4326-23yist')
     state.sitesQueryResult = map.querySourceFeatures('composite', {
-      'sourceLayer': 'richmondsitenames-EPSG-4326-23yist'
+      'sourceLayer': state.settings.maps[mapId].dataSource
       // ,filter: ['==', 'Site_Name', 'Grove Road Gardens']
     })
 
-    const siteNames  = state.sitesQueryResult.map (feature => {return feature.properties.Site_Name})
+    const siteNames = state.sitesQueryResult.map(feature => {
+      const siteName = feature.properties.Site_Name || feature.properties.Site
+      return siteName
+    })
     autocomplete(document.getElementById("myInput"), siteNames);
     //$( "#search-box" ).attr("placeholder", "xx!");
 
     console.log("done!")
   }
-
-
 
   const siteNamesArr = (sourceLayer) => {
     const sites = map.querySourceFeatures('composite', {
@@ -144,13 +146,15 @@
   const flyTo = siteName => {
     // queryAllFeatures
     console.log("siteName:", siteName)
+    const siteId = state.settings.currentMapId
     const sites = map.querySourceFeatures('composite', {
-      'sourceLayer': 'richmondsitenames-EPSG-4326-23yist'
+      'sourceLayer': state.settings.maps[siteId].dataSource
       // ,filter: ['==', 'Site_Name', 'Grove Road Gardens']
     })
     // return match where properties.Site_Name = Site_Name
     const site = sites.filter(site => {
-      return site.properties.Site_Name == siteName
+      const prop_name = site.properties.Site_Name || site.properties.Site
+      return prop_name == siteName
     })
     console.log("site:", site)
     map.fitBounds(turf.bbox(site[0])) // fails with array
@@ -161,20 +165,27 @@
     const el = document.getElementById("site-dropdown-div")
     el.innerHTML = null
     let myList = ""
-    const sitesArray = siteNamesArr('richmondsitenames-EPSG-4326-23yist')
-    sitesArray.map(siteName => {
+    //const sites = siteNamesArr('richmondsitenames-EPSG-4326-23yist')
+const mapId = state.settings.currentMapId
+    const sitesArray = map.querySourceFeatures('composite', {
+      'sourceLayer': state.settings.maps[mapId].dataSource
+      // ,filter: ['==', 'Site_Name', 'Grove Road Gardens']
+    })
+
+    sitesArray.map(feature => {
+      const siteName = feature.properties.Site_Name || feature.properties.Site
       myList += `<a href="#" class="dropdown-item nav-linkx navbar-collapse"  onClick = "flyTo('${siteName}')">${siteName})</a> `
     })
     myList += `<hr><p style="color:white;padding:1em; background-color:#b2715d">If you can't see the site <br> you are looking for<br> then try zooming out</p>`
-    myList+= `<button class="btn btn-primary "id="Show-all-button" onClick="reseToBoundsOfProject()">Show all</button>`
+    myList += `<button class="btn btn-primary "id="Show-all-button" onClick="reseToBoundsOfProject()">Show all</button>`
     el.innerHTML = myList
   }
 
-const reseToBoundsOfProject = () =>{
-  const mapId = state.settings.currentMapId
-  map.setCenter(state.settings.maps[mapId].center)
-  map.setZoom(state.settings.maps[mapId].zoom)
-}
+  const reseToBoundsOfProject = () => {
+    const mapId = state.settings.currentMapId
+    map.setCenter(state.settings.maps[mapId].center)
+    map.setZoom(state.settings.maps[mapId].zoom)
+  }
 
   const selectNewMap = (mapID) => {
     map.setStyle(state.settings.maps[mapID].url)
