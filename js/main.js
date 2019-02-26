@@ -2,7 +2,7 @@
   //
 
   mapboxgl.accessToken = 'pk.eyJ1IjoiZGFuc2ltbW9ucyIsImEiOiJjamRsc2NieTEwYmxnMnhsN3J5a3FoZ3F1In0.m0ct-AGSmSX2zaCMbXl0-w';
-  alert("End User Map v 0.9.013")
+  alert("End User Map v 0.9.014")
   const state = {}
   state.settings = {}
   state.settings.maps = {}
