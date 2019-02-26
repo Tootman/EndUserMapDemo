@@ -16,6 +16,7 @@
       lng: -0.3215425160765335
     },
     hasRelatedData: false,
+    zoom: 11
   }
   state.settings.maps.hounslowBorough = {
     url: 'mapbox://styles/dansimmons/cjrrodbqq01us2slmro016y8b',
@@ -26,6 +27,7 @@
     },
     firebaseMapId: '-LR7CewcYJ2ZUDgCJSK8',
     hasRelatedData: true,
+    zoom: 11
   }
   state.settings.currentMapId = 'richmondBorough',
     state.sitesQueryResult = {}
@@ -164,8 +166,15 @@
       myList += `<a href="#" class="dropdown-item nav-linkx navbar-collapse"  onClick = "flyTo('${siteName}')">${siteName})</a> `
     })
     myList += `<hr><p style="color:white;padding:1em; background-color:#b2715d">If you can't see the site <br> you are looking for<br> then try zooming out</p>`
+    myList+= `<button class="btn btn-primary "id="Show-all-button" onClick="reseToBoundsOfProject()">Show all</button>`
     el.innerHTML = myList
   }
+
+const reseToBoundsOfProject = () =>{
+  const mapId = state.settings.currentMapId
+  map.setCenter(state.settings.maps[mapId].center)
+  map.setZoom(state.settings.maps[mapId].zoom)
+}
 
   const selectNewMap = (mapID) => {
     map.setStyle(state.settings.maps[mapID].url)
