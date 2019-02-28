@@ -5,12 +5,14 @@
   alert("End User Map v 0.9.014")
   const state = {}
   state.settings = {}
+  state.sitesFeatureCollection = {}
   state.settings.maps = {}
   state.settings.maps.richmondBorough = {
     url: 'mapbox://styles/dansimmons/cjqusg2fq1jp62srv0zdgz6c5',
     //url: "mapbox://styles/dansimmons/cjsa8mwbw2bts1gs6p3jdte1o",
     mapName: 'Richmond Borough parks',
     dataSource: 'richmondsitenames-EPSG-4326-23yist',
+    sitesDataSet: 'cjsoewq710bcn2xmoupim2gi5',
     center: {
       lat: 51.443858500160644,
       lng: -0.3215425160765335
@@ -22,6 +24,7 @@
     url: 'mapbox://styles/dansimmons/cjrrodbqq01us2slmro016y8b',
     mapName: 'Hounslow Borough parks',
     dataSource: 'hounslow-borough-park-names-p-9yc84m',
+    sitesDataSet: 'cjsm0gxi30v872xp42mzlgep0', // todo - note this not rendered- and is INDEPENDENT of tileset layer for sites
     center: {
       lat: 51.44156782214026,
       lng: -0.4432747195056663
@@ -111,11 +114,49 @@
     }
   */
 
+  var myData = {}
+
+  const loadGeoJSONLayer = datasetId => {
+    const url = `https://api.mapbox.com/datasets/v1/dansimmons/${datasetId}/features?access_token=${mapboxgl.accessToken}`
+    fetch(url)
+      .then((resp) => resp.json()) // Transform the data into json
+      .then(function(data) {
+        // Create and append the li's to the ul
+        //console.log("result:", data)
+        //myData = data
+        state.sitesFeatureCollection = data
+        const siteNames = data.features.map(feature => {
+          const siteName = feature.properties.Site_Name || feature.properties.Site
+          return siteName
+        })
+        autocomplete(document.getElementById("myInput"), siteNames);
+
+        /*
+        map.addLayer({
+          'source': {
+            'type': 'geojson',
+            'data': data
+          },
+          'id': 'gjLayer',
+          'type': 'fill',
+          'layout': {},
+          'paint': {
+            'fill-color': '#088',
+            'fill-opacity': 1
+          }
+        })
+*/
+      })
+
+  }
+
+  loadGeoJSONLayer(state.settings.maps[state.settings.currentMapId].sitesDataSet)
 
   const searchBoxOnFocus = () => {
-    // todo: why not orignal shp properties appearing in object!!??
+    // Function not  used since  full dataset now stored in state
+    // todo: why not all orignal shp properties appearing in object todo!!??
     console.log("focus!")
-const mapId = state.settings.currentMapId
+    const mapId = state.settings.currentMapId
     //const siteNames = siteNamesArr('richmondsitenames-EPSG-4326-23yist')
     state.sitesQueryResult = map.querySourceFeatures('composite', {
       'sourceLayer': state.settings.maps[mapId].dataSource
@@ -147,12 +188,14 @@ const mapId = state.settings.currentMapId
     // queryAllFeatures
     console.log("siteName:", siteName)
     const siteId = state.settings.currentMapId
-    const sites = map.querySourceFeatures('composite', {
-      'sourceLayer': state.settings.maps[siteId].dataSource
-      // ,filter: ['==', 'Site_Name', 'Grove Road Gardens']
-    })
+    /*
+        const sites = map.querySourceFeatures('composite', {
+          'sourceLayer': state.settings.maps[siteId].dataSource
+          // ,filter: ['==', 'Site_Name', 'Grove Road Gardens']
+        })
+    */
     // return match where properties.Site_Name = Site_Name
-    const site = sites.filter(site => {
+    const site = state.sitesFeatureCollection.features.filter(site => {
       const prop_name = site.properties.Site_Name || site.properties.Site
       return prop_name == siteName
     })
@@ -162,11 +205,12 @@ const mapId = state.settings.currentMapId
   }
 
   const populateDropDownSites = () => {
+    // not now used
     const el = document.getElementById("site-dropdown-div")
     el.innerHTML = null
     let myList = ""
     //const sites = siteNamesArr('richmondsitenames-EPSG-4326-23yist')
-const mapId = state.settings.currentMapId
+    const mapId = state.settings.currentMapId
     const sitesArray = map.querySourceFeatures('composite', {
       'sourceLayer': state.settings.maps[mapId].dataSource
       // ,filter: ['==', 'Site_Name', 'Grove Road Gardens']
@@ -192,6 +236,7 @@ const mapId = state.settings.currentMapId
     state.settings.currentMapId = mapID // fudge - come back to
     map.on('data', armIsStyleLoaded)
     document.getElementById("navbarToggler").classList.remove("show")
+    loadGeoJSONLayer(state.settings.maps[mapID].sitesDataSet)
     //renderedSitePolys()
   }
 
@@ -305,9 +350,6 @@ const mapId = state.settings.currentMapId
     */
   });
 
-
-
-
   map.on('zoom', () => {
     // console.log("mapZoom:", map.getZoom())
   });
@@ -322,6 +364,9 @@ const mapId = state.settings.currentMapId
   map.on('geolocate', () => {
     alert("geolocate!")
   });
+
+
+
 
   function autocomplete(inp, arr) {
     /*the autocomplete function takes two arguments,
