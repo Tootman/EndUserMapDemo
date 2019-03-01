@@ -33,9 +33,11 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarToggler">
+
       <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+<!--
         <li class="nav-item">
-          <a class="nav-link dropdown-toggle" title="Open a new map" href="#" role="button" id="sitelinks" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+           <a class="nav-link dropdown-toggle" title="Open a new map" href="#" role="button" id="sitelinks" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Open </a>
           <div class="dropdown-menu" aria-labelledby="sitelinks">
             <a class="dropdown-item nav-linkx navbar-collapse" onClick="selectNewMap('hounslowBorough')" href="#">Hounslow Borough</a>
@@ -43,7 +45,8 @@
           </div>
         </li>
 
- <!--
+-->
+      <!--
         <li class="nav-item">
            <a class="nav-link dropdown-toggle" title="Goto a site within the current map view"  href="#" role="button" id="site-name-links" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Goto</a>
@@ -52,16 +55,23 @@
         </li>
     -->
 
-        <li class="nav-item">
-          <a class="nav-link dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Log in </a>
-          <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-            <form class="form-group">
-              <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-              <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
-            </form>
-          </div>
-        </li>
+      <select  class="nav-item">
+        <option value="volvo">Volvo</option>
+        <option value="saab">Saab</option>
+        <option value="mercedes">Mercedes</option>
+        <option value="audi">Audi</option>
+      </select>
+
+      <li class="nav-item">
+        <a class="nav-link dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Log in </a>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+          <form class="form-group">
+            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+            <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+          </form>
+        </div>
+      </li>
       </ul>
       <!--
       <form class="form-inline my-2 my-lg-0">
@@ -71,7 +81,7 @@
 -->
       <form class="form-inline my-2 my-lg-0" autocomplete="off">
         <div class="autocomplete" style="width:300px;">
-          <input id="myInput" type="text"  name="myCountry" placeholder="Search site name">
+          <input id="myInput" type="text" name="myCountry" placeholder="Search site name">
         </div>
       </form>
 
