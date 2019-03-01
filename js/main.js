@@ -1,6 +1,8 @@
   "use strict";
   //
 
+  // --- setup state  -----
+
   mapboxgl.accessToken = 'pk.eyJ1IjoiZGFuc2ltbW9ucyIsImEiOiJjamRsc2NieTEwYmxnMnhsN3J5a3FoZ3F1In0.m0ct-AGSmSX2zaCMbXl0-w';
   alert("End User Map v 0.9.015")
   const state = {}
@@ -36,6 +38,37 @@
   state.settings.currentMapId = 'richmondBorough',
     state.sitesQueryResult = {}
 
+  const loadSiteNamesDatasetLayer = datasetId => {
+    const url = `https://api.mapbox.com/datasets/v1/dansimmons/${datasetId}/features?access_token=${mapboxgl.accessToken}`
+    fetch(url)
+      .then((resp) => resp.json()) // Transform the data into json
+      .then(function(data) {
+
+        state.sitesFeatureCollection = data
+        const siteNames = data.features.map(feature => {
+          const siteName = feature.properties.Site_Name || feature.properties.Site
+          return siteName
+        })
+        autocomplete(document.getElementById("myInput"), siteNames);
+
+        /*
+          map.addLayer({
+            'source': {
+              'type': 'geojson',
+              'data': data
+            },
+            'id': 'gjLayer',
+            'type': 'fill',
+            'layout': {},
+            'paint': {
+              'fill-color': '#088',
+              'fill-opacity': 1
+            }
+          })
+  */
+      })
+  }
+
   const armIsStyleLoaded = () => {
     if (map.isStyleLoaded()) {
       map.off('data', armIsStyleLoaded)
@@ -47,11 +80,20 @@
     }
   }
 
-  // $('#editable-select').editableSelect(); // aborted effort to use to replace search
+  const selectNewMap = (mapID) => {
+    map.setStyle(state.settings.maps[mapID].url)
+    state.settings.currentMapId = mapID // fudge - come back to
+    map.on('data', armIsStyleLoaded)
+    document.getElementById("navbarToggler").classList.remove("show")
+    loadSiteNamesDatasetLayer(state.settings.maps[mapID].sitesDataSet)
+  }
+
+
+  // ------ init -------------------------------
 
   const map = new mapboxgl.Map({
     container: 'map',
-    style: (state.settings.maps[state.settings.currentMapId].url), // contains all layers with data - Richmond
+    //style: (state.settings.maps[state.settings.currentMapId].url), // contains all layers with data - Richmond
     //style: 'mapbox://styles/dansimmons/cjrrodbqq01us2slmro016y8b', //hounslow
     center: (state.settings.maps[state.settings.currentMapId].center),
     zoom: 13,
@@ -69,6 +111,10 @@
     fitBoundsOptions: {
       zoom: 19
     }
+  }));
+  map.addControl(new mapboxgl.ScaleControl({
+    maxWidth: 80,
+    unit: 'metric'
   }));
 
   let lineLayers = [
@@ -94,63 +140,10 @@
     });
   })
 
-  /*
-    const searchUpdate = () => {
-      const searchBox = document.getElementById("search-box")
-      //console.log(searchBox.value)
-      const options = {
-        keys: ['properties.Site_Name'
-          //, 'properties.Ward',
-          // 'properties.Category'
-        ],
-        //minMatchCharLength: 3,
-        shouldSort: true,
-        //includeMatches: true,
-        threshold: 0.1
-      }
-      const fuse = new Fuse(state.sitesQueryResult, options);
-      const result = fuse.search(searchBox.value);
-      //console.log(result)
-    }
-  */
+  selectNewMap (state.settings.currentMapId)
 
-  var myData = {}
 
-  const loadGeoJSONLayer = datasetId => {
-    const url = `https://api.mapbox.com/datasets/v1/dansimmons/${datasetId}/features?access_token=${mapboxgl.accessToken}`
-    fetch(url)
-      .then((resp) => resp.json()) // Transform the data into json
-      .then(function(data) {
-        // Create and append the li's to the ul
-        //console.log("result:", data)
-        //myData = data
-        state.sitesFeatureCollection = data
-        const siteNames = data.features.map(feature => {
-          const siteName = feature.properties.Site_Name || feature.properties.Site
-          return siteName
-        })
-        autocomplete(document.getElementById("myInput"), siteNames);
-
-        /*
-        map.addLayer({
-          'source': {
-            'type': 'geojson',
-            'data': data
-          },
-          'id': 'gjLayer',
-          'type': 'fill',
-          'layout': {},
-          'paint': {
-            'fill-color': '#088',
-            'fill-opacity': 1
-          }
-        })
-*/
-      })
-
-  }
-
-  loadGeoJSONLayer(state.settings.maps[state.settings.currentMapId].sitesDataSet)
+  // ------------- functions ---
 
   const searchBoxOnFocus = () => {
     // Function not  used since  full dataset now stored in state
@@ -168,7 +161,6 @@
       return siteName
     })
     autocomplete(document.getElementById("myInput"), siteNames);
-    //$( "#search-box" ).attr("placeholder", "xx!");
 
     console.log("done!")
   }
@@ -231,23 +223,6 @@
     map.setZoom(state.settings.maps[mapId].zoom)
   }
 
-  const selectNewMap = (mapID) => {
-    map.setStyle(state.settings.maps[mapID].url)
-    state.settings.currentMapId = mapID // fudge - come back to
-    map.on('data', armIsStyleLoaded)
-    document.getElementById("navbarToggler").classList.remove("show")
-    loadGeoJSONLayer(state.settings.maps[mapID].sitesDataSet)
-    //renderedSitePolys()
-  }
-
-  map.on('mouseenter', "points-symbol", e => {
-    map.getCanvas().style.cursor = 'cell';
-  })
-  map.on('mouseleave', "points-symbol", () => {
-    map.getCanvas().style.cursor = '';
-
-  });
-
   const fetchLastFirebaseRelatedData = obId => {
     const path = `/App/Maps/${state.settings.maps[state.settings.currentMapId].firebaseMapId}/Related/${obId}`
     fbDatabase.ref(path).orderByKey().limitToLast(1).once('value').then(
@@ -291,8 +266,6 @@
     return `<table class="table table-sm table-responsive-sm table-striped">${itemList}</table>`
   };
 
-
-  // init App
   const fireBaseconfig = {
     apiKey: "AIzaSyB977vJdWTGA-JJ03xotQkeu8X4_Ds_BLQ",
     authDomain: "fir-realtime-db-24299.firebaseapp.com",
@@ -304,6 +277,15 @@
   firebase.initializeApp(fireBaseconfig);
   const fbDatabase = firebase.database();
   armIsStyleLoaded();
+
+  // --- setup listeners---
+
+  map.on('mouseenter', "points-symbol", e => {
+    map.getCanvas().style.cursor = 'cell';
+  })
+  map.on('mouseleave', "points-symbol", () => {
+    map.getCanvas().style.cursor = '';
+  });
 
   map.on('click', e => {
     const features = map.queryRenderedFeatures(e.point, {
@@ -318,13 +300,11 @@
       const obId = feature.properties.OBJECTID + feature.geometry.type
       fetchLastFirebaseRelatedData(obId)
     }
-
     const p = feature.properties
     const popupTitle = p.ASSET || p.Asset || p.asset
     //const popupFeatureContent = propSet(feature)
     //document.getElementById("popup-feature-template").innerHTML = propSet(feature)
     const modalContent = `${propSet(feature.properties)}</p>`
-
     const popupContent = `<h4>${popupTitle}</h4><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
     Details ...</button>`
     //const popupContent = `<img id="related-image" src="example-photo.jpg"/>`
@@ -338,35 +318,12 @@
       .addTo(map);
   });
 
-  // https://www.mapbox.com/mapbox-gl-js/example/filter-features-within-map-view/
-
-  map.on('moveend', () => {
-    //repopulateData()
-    /*
-                  const features = map.queryRenderedFeatures({
-                    layers: ['points-symbol']
-                  })
-                  //console.log(features)
-    */
-  });
-
-  map.on('zoom', () => {
-    // console.log("mapZoom:", map.getZoom())
-  });
-
-  const scaleControl = new mapboxgl.ScaleControl({
-    maxWidth: 80,
-    unit: 'imperial'
-  });
-  map.addControl(scaleControl);
-  scaleControl.setUnit('metric');
-
-  map.on('geolocate', () => {
-    alert("geolocate!")
-  });
+  //  ----------- setup map controls -----------
 
 
 
+
+  // --- search auto complete ---
 
   function autocomplete(inp, arr) {
     /*the autocomplete function takes two arguments,
