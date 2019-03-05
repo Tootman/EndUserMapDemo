@@ -287,6 +287,10 @@
     map.getCanvas().style.cursor = '';
   });
 
+document.getElementById ("select-hounslow-map").addEventListener ('click',() => {selectNewMap('hounslowBorough')})
+document.getElementById ("select-richmond-map").addEventListener ('click',() => {selectNewMap('richmondBorough')})
+
+
   map.on('click', e => {
     const features = map.queryRenderedFeatures(e.point, {
       layers: pointsAndLineLayers
@@ -319,8 +323,6 @@
   });
 
   //  ----------- setup map controls -----------
-
-
 
 
   // --- search auto complete ---
