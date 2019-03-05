@@ -140,7 +140,7 @@
     });
   })
 
-  selectNewMap (state.settings.currentMapId)
+  selectNewMap(state.settings.currentMapId)
 
 
   // ------------- functions ---
@@ -194,6 +194,7 @@
     console.log("site:", site)
     map.fitBounds(turf.bbox(site[0])) // fails with array
     //turf.bbox()
+    //document.getElementById('myInput').value=""
   }
 
   const populateDropDownSites = () => {
@@ -287,8 +288,16 @@
     map.getCanvas().style.cursor = '';
   });
 
-document.getElementById ("select-hounslow-map").addEventListener ('click',() => {selectNewMap('hounslowBorough')})
-document.getElementById ("select-richmond-map").addEventListener ('click',() => {selectNewMap('richmondBorough')})
+  document.getElementById("select-hounslow-map").addEventListener('click', () => {
+    selectNewMap('hounslowBorough')
+  })
+  document.getElementById("select-richmond-map").addEventListener('click', () => {
+    selectNewMap('richmondBorough')
+  })
+
+  map.on('moveend', function(e) {
+     document.getElementById('myInput').value=""
+  });
 
 
   map.on('click', e => {
@@ -361,6 +370,7 @@ document.getElementById ("select-richmond-map").addEventListener ('click',() => 
           b.addEventListener("click", function(e) {
             /*insert the value for the autocomplete text field:*/
             inp.value = this.getElementsByTagName("input")[0].value;
+
             /*close the list of autocompleted values,
             (or any other open lists of autocompleted values:*/
             closeAllLists();
