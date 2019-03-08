@@ -3,8 +3,10 @@
 
   // --- setup state  -----
 
-  mapboxgl.accessToken = 'pk.eyJ1IjoiZGFuc2ltbW9ucyIsImEiOiJjamRsc2NieTEwYmxnMnhsN3J5a3FoZ3F1In0.m0ct-AGSmSX2zaCMbXl0-w';
-  alert("End User Map v 0.9.015")
+  //mapboxgl.accessToken = 'pk.eyJ1IjoiZGFuc2ltbW9ucyIsImEiOiJjamRsc2NieTEwYmxnMnhsN3J5a3FoZ3F1In0.m0ct-AGSmSX2zaCMbXl0-w';
+  //mapboxgl.accessToken = 'pk.eyJ1Iz5a3FoZ3F1In0.m0ct-AGSmSX2zaCMbXl0-w';
+  mapboxgl.accessToken = 'pk.eyJ1IjoiZGFuc2ltbW9ucyIsImEiOiJjanN4Y2xxNWMwbDB2NDN0M3c1czRuaHVrIn0.if4c9jxQwb9_bJffPwwqsg';
+  alert("End User Map v 0.9.017")
   const state = {}
   state.settings = {}
   state.sitesFeatureCollection = {}
@@ -296,7 +298,7 @@
   })
 
   map.on('moveend', function(e) {
-     document.getElementById('myInput').value=""
+    document.getElementById('myInput').value = ""
   });
 
 
@@ -375,6 +377,7 @@
             (or any other open lists of autocompleted values:*/
             closeAllLists();
             flyTo(inp.value)
+            document.getElementById('navbarToggler').classList.replace("show", "hide")
           });
           a.appendChild(b);
         }
