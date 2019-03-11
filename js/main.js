@@ -12,7 +12,6 @@ const state = {};
 state.settings = {};
 state.sitesFeatureCollection = {};
 state.settings.maps = {};
-/*
 state.settings.maps.richmondBorough = {
   url: "mapbox://styles/dansimmons/cjqusg2fq1jp62srv0zdgz6c5",
   //url: "mapbox://styles/dansimmons/cjsa8mwbw2bts1gs6p3jdte1o",
@@ -26,7 +25,6 @@ state.settings.maps.richmondBorough = {
   hasRelatedData: false,
   zoom: 11
 };
-*/
 state.settings.maps.hounslowBorough = {
   url: "mapbox://styles/dansimmons/cjrrodbqq01us2slmro016y8b",
   mapName: "Hounslow Borough parks",
@@ -40,10 +38,8 @@ state.settings.maps.hounslowBorough = {
   hasRelatedData: true,
   zoom: 11
 };
-
-state.settings.currentMap = {};
-state.settings.currentUserProfile = {};
-state.sitesQueryResult = {};
+(state.settings.currentMapId = "richmondBorough"),
+  (state.sitesQueryResult = {});
 
 const loadSiteNamesDatasetLayer = datasetId => {
   const url = `https://api.mapbox.com/datasets/v1/dansimmons/${datasetId}/features?access_token=${
@@ -90,18 +86,12 @@ const armIsStyleLoaded = () => {
   }
 };
 
-const selectNewMap = userProfile => {
-  //map.setStyle(state.settings.maps[mapID].url);
-  map.setStyle (userProfile.mapboxStyleId);
+const selectNewMap = mapID => {
+  map.setStyle(state.settings.maps[mapID].url);
   state.settings.currentMapId = mapID; // fudge - come back to
   map.on("data", armIsStyleLoaded);
   document.getElementById("navbarToggler").classList.remove("show");
   loadSiteNamesDatasetLayer(state.settings.maps[mapID].sitesDataSet);
-/*
-  loadSiteNamesDatasetLayer(
-    state.settings.currentUserProfile.mapboxSitesDataSet
-  );
-  */
 };
 
 // ------ init -------------------------------
@@ -109,10 +99,8 @@ const selectNewMap = userProfile => {
 const map = new mapboxgl.Map({
   container: "map",
   //style: (state.settings.maps[state.settings.currentMapId].url), // contains all layers with data - Richmond
-  style: "mapbox://styles/dansimmons/cjqsdh1lg09pd2sn2qf98ydau", // default simple
   //style: 'mapbox://styles/dansimmons/cjrrodbqq01us2slmro016y8b', //hounslow
-  //center: state.settings.maps[state.settings.currentMapId].center,
-  center: { lat: 51.443858500160644,  lng: -0.3215425160765335},
+  center: state.settings.maps[state.settings.currentMapId].center,
   zoom: 13,
   maxZoom: 23,
   minZoom: 10,
@@ -161,7 +149,7 @@ lineLayers.map(layer => {
   });
 });
 
-//selectNewMap(state.settings.currentMapId);
+selectNewMap(state.settings.currentMapId);
 //window.User = User;
 
 // ------------- functions ---
@@ -326,14 +314,7 @@ const userLogin = () => {
         .once("value")
         .then(snapshot => {
           //console.log("from fb:", snapshot.val());
-          console.log("Mapbox token: ", snapshot.val().mapboxAccessToken);
-          const mapId = snapshot.val().mapboxStyleId;
-          //const token = snapshot.val().mapboxAccessToken
-          mapboxgl.accessToken = snapshot.val().mapboxAccessToken;
-          //console.log("token set:", mapboxgl.accessToken);
-          //console.log("map selected:", mapId);
-          state.settings.currentUserProfile = snapshot.val();
-          selectNewMap(mapId);
+          console.log("Mapbox key: ", snapshot.val().mapboxAccessToken)
         });
     });
 };
