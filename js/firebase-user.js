@@ -8,6 +8,7 @@ const User = function() {
   const auth = firebase.auth;
 
   function signIn(myFunc) {
+    console.log("singINfunc")
     return auth()
       .signInWithEmailAndPassword(email.value, pw.value)
       .then(user => {
