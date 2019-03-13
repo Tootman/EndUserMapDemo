@@ -3,11 +3,7 @@
 
 // --- setup state  -----
 
-mapboxgl.accessToken =
-  "pk.eyJ1IjoiZGFuc2ltbW9ucyIsImEiOiJjamRsc2NieTEwYmxnMnhsN3J5a3FoZ3F1In0.m0ct-AGSmSX2zaCMbXl0-w"; // public
-//mapboxgl.accessToken = 'pk.eyJ1Iz5a3FoZ3F1In0.m0ct-AGSmSX2zaCMbXl0-w';
-//mapboxgl.accessToken = 'pk.eyJ1IjoiZGFuc2ltbW9ucyIsImEiOiJjanN4Y2xxNWMwbDB2NDN0M3c1czRuaHVrIn0.if4c9jxQwb9_bJffPwwqsg'; // lbrut
-alert("End User Map v 0.9.018");
+alert("End User Map v 0.9.019");
 const state = {};
 state.settings = {};
 state.sitesFeatureCollection = {};
@@ -38,8 +34,9 @@ state.settings.maps.hounslowBorough = {
   hasRelatedData: true,
   zoom: 11
 };
-(state.settings.currentMapId = "richmondBorough"),
-  (state.sitesQueryResult = {});
+state.settings.currentMapId = "hounslowBorough";
+state.sitesQueryResult = {};
+state.fbDatabase = {};
 
 const loadSiteNamesDatasetLayer = datasetId => {
   const url = `https://api.mapbox.com/datasets/v1/dansimmons/${datasetId}/features?access_token=${
@@ -94,7 +91,100 @@ const selectNewMap = mapID => {
   loadSiteNamesDatasetLayer(state.settings.maps[mapID].sitesDataSet);
 };
 
+const selectNewMapWithAccess = userProfile => {
+  mapboxgl.accessToken = userProfile.mapboxAccessToken;
+  map.setStyle(userProfile.mapboxStyleId);
+  //state.settings.currentMapId = mapID; // fudge - come back to
+  map.on("data", armIsStyleLoaded);
+  //document.getElementById("navbarToggler").classList.remove("show");
+  loadSiteNamesDatasetLayer(userProfile.mapboxSitesDataSet);
+};
+
 // ------ init -------------------------------
+
+document.addEventListener("DOMContentLoaded", function(event) {
+  initApp();
+});
+
+const initApp = () => {
+  console.log("initApp!");
+  state.fbDatabase = initFirebase();
+  const myUser = User();
+  const loggedIn = myUid => {
+    // logged in Func
+    getUserProfileFromFirebase(myUid).then(snapshot => {
+      selectNewMapWithAccess(snapshot.val());
+    });
+
+    map.on("mouseenter", "points-symbol", e => {
+      map.getCanvas().style.cursor = "cell";
+    });
+    map.on("mouseleave", "points-symbol", () => {
+      map.getCanvas().style.cursor = "";
+    });
+
+    document
+      .getElementById("select-hounslow-map")
+      .addEventListener("click", () => {
+        selectNewMap("hounslowBorough");
+      });
+    document
+      .getElementById("select-richmond-map")
+      .addEventListener("click", () => {
+        selectNewMap("richmondBorough");
+      });
+
+    document.getElementById("login-btn").addEventListener("click", () => {
+      //User().btnLogin();
+      userLogin();
+    });
+
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      User().btnLogout();
+    });
+
+    map.on("moveend", function(e) {
+      document.getElementById("myInput").value = "";
+    });
+
+    map.on("click", e => {
+      const features = map.queryRenderedFeatures(e.point, {
+        layers: pointsAndLineLayers
+      });
+      if (!features.length) {
+        return;
+      }
+      const feature = features[0];
+
+      if (state.settings.maps[state.settings.currentMapId].hasRelatedData) {
+        const obId = feature.properties.OBJECTID + feature.geometry.type;
+        fetchLastFirebaseRelatedData(obId);
+      }
+      const p = feature.properties;
+      const popupTitle = p.ASSET || p.Asset || p.asset;
+      //const popupFeatureContent = propSet(feature)
+      //document.getElementById("popup-feature-template").innerHTML = propSet(feature)
+      const modalContent = `${propSet(feature.properties)}</p>`;
+      const popupContent = `<h4>${popupTitle}</h4><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+        Details ...</button>`;
+      //const popupContent = `<img id="related-image" src="example-photo.jpg"/>`
+      document.querySelector(".modal-feature-attr").innerHTML = modalContent;
+      document.querySelector(".modal-title").innerHTML = popupTitle;
+      const popup = new mapboxgl.Popup({
+        offset: [0, -15]
+      })
+        .setLngLat(e.lngLat)
+        .setHTML(popupContent)
+        .addTo(map);
+    });
+  };
+
+  const loggedOut = () => {
+    //logged out func
+    console.log("logged out - callback");
+  };
+  myUser.OnAuthChangedListener(loggedIn, loggedOut);
+};
 
 const map = new mapboxgl.Map({
   container: "map",
@@ -140,6 +230,7 @@ pointsAndLineLayers.push("points-symbol");
 const allLayers = pointsAndLineLayers;
 allLayers.push("polygons");
 
+/*
 lineLayers.map(layer => {
   map.on("mouseenter", layer, e => {
     map.getCanvas().style.cursor = "cell";
@@ -148,8 +239,9 @@ lineLayers.map(layer => {
     map.getCanvas().style.cursor = "";
   });
 });
+*/
 
-selectNewMap(state.settings.currentMapId);
+//selectNewMap(state.settings.currentMapId);
 //window.User = User;
 
 // ------------- functions ---
@@ -239,7 +331,7 @@ const fetchLastFirebaseRelatedData = obId => {
   const path = `/App/Maps/${
     state.settings.maps[state.settings.currentMapId].firebaseMapId
   }/Related/${obId}`;
-  fbDatabase
+  state.fbDatabase
     .ref(path)
     .orderByKey()
     .limitToLast(1)
@@ -297,87 +389,38 @@ const fireBaseconfig = {
   storageBucket: "fir-realtime-db-24299.appspot.com",
   messagingSenderId: "546067641349"
 };
+
+const initFirebase = () => {
+  firebase.initializeApp(fireBaseconfig);
+  return firebase.database();
+};
+
+/*
 firebase.initializeApp(fireBaseconfig);
 const fbDatabase = firebase.database();
 armIsStyleLoaded();
+*/
 
 const userLogin = () => {
-  console.log("user login proc!");
   User()
     .btnLogin()
     .then(data => {
       console.log("some final stuff:", data);
       //const token = data.mapboxAccessToken
-      firebase
-        .database()
-        .ref(`App/Users/${data.uid}/`)
-        .once("value")
-        .then(snapshot => {
-          //console.log("from fb:", snapshot.val());
-          console.log("Mapbox key: ", snapshot.val().mapboxAccessToken)
-        });
+      getUserProfileFromFirebase(data.uid).then(snapshot => {
+        selectNewMapWithAccess(snapshot.val());
+      });
     });
 };
 
+const getUserProfileFromFirebase = userId => {
+  return firebase
+    .database()
+    .ref(`App/Users/${userId}/`)
+    .once("value");
+};
+
 // --- setup listeners---
-
-map.on("mouseenter", "points-symbol", e => {
-  map.getCanvas().style.cursor = "cell";
-});
-map.on("mouseleave", "points-symbol", () => {
-  map.getCanvas().style.cursor = "";
-});
-
-document.getElementById("select-hounslow-map").addEventListener("click", () => {
-  selectNewMap("hounslowBorough");
-});
-document.getElementById("select-richmond-map").addEventListener("click", () => {
-  selectNewMap("richmondBorough");
-});
-
-document.getElementById("login-btn").addEventListener("click", () => {
-  //User().btnLogin();
-  userLogin();
-});
-
-document.getElementById("logout-btn").addEventListener("click", () => {
-  User().btnLogout();
-});
-
-map.on("moveend", function(e) {
-  document.getElementById("myInput").value = "";
-});
-
-map.on("click", e => {
-  const features = map.queryRenderedFeatures(e.point, {
-    layers: pointsAndLineLayers
-  });
-  if (!features.length) {
-    return;
-  }
-  const feature = features[0];
-
-  if (state.settings.maps[state.settings.currentMapId].hasRelatedData) {
-    const obId = feature.properties.OBJECTID + feature.geometry.type;
-    fetchLastFirebaseRelatedData(obId);
-  }
-  const p = feature.properties;
-  const popupTitle = p.ASSET || p.Asset || p.asset;
-  //const popupFeatureContent = propSet(feature)
-  //document.getElementById("popup-feature-template").innerHTML = propSet(feature)
-  const modalContent = `${propSet(feature.properties)}</p>`;
-  const popupContent = `<h4>${popupTitle}</h4><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
-    Details ...</button>`;
-  //const popupContent = `<img id="related-image" src="example-photo.jpg"/>`
-  document.querySelector(".modal-feature-attr").innerHTML = modalContent;
-  document.querySelector(".modal-title").innerHTML = popupTitle;
-  const popup = new mapboxgl.Popup({
-    offset: [0, -15]
-  })
-    .setLngLat(e.lngLat)
-    .setHTML(popupContent)
-    .addTo(map);
-});
 
 //  ----------- setup map controls -----------
 

@@ -57,12 +57,31 @@ const User = function() {
 
   function testFunc() {
     console.log("testing only!");
-    return firebase.auth().currentUser
+    return firebase.auth();
   }
 
-function currentUser (){
-  return firebase.auth().currentUser
-}
+  function OnAuthChangedListener(loggedIn, loggedOut) {
+    console.log("OnAuthChangedListener!");
+
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        // User is signed in and currentUser will no longer return null.
+        //console.log("Listener - User signed in!");
+        console.log("firebase-user-onAuth-user logged in!!")
+        loggedIn(user.uid)
+      } else {
+        // No user is signed in.
+        //console.log("Listener - User signed out!");
+        console.log("firebase-user-onAuth-user -logged Out!!")
+        loggedOut()
+      }
+    });
+
+  }
+
+  function currentUser() {
+    return firebase.auth().currentUser;
+  }
 
   const myOb = {
     myFunc: () => {
@@ -86,6 +105,7 @@ function currentUser (){
     btnLogout: signOut,
     testFunc: testFunc,
     initLoginForm: initLoginForm,
-    currentUser
+    OnAuthChangedListener: OnAuthChangedListener,
+    currentUser: currentUser
   };
 };
