@@ -98,12 +98,22 @@ const selectNewMapWithAccess = userProfile => {
   map.on("data", armIsStyleLoaded);
   //document.getElementById("navbarToggler").classList.remove("show");
   loadSiteNamesDatasetLayer(userProfile.mapboxSitesDataSet);
+  console.log("attaching listeners ...");
+  attachMapListeners();
+  console.log("attached listeners done");
 };
 
 // ------ init -------------------------------
 
 document.addEventListener("DOMContentLoaded", function(event) {
   initApp();
+
+  map.on("mouseenter", "points-symbol", e => {
+    map.getCanvas().style.cursor = "cell";
+  });
+  map.on("mouseleave", "points-symbol", () => {
+    map.getCanvas().style.cursor = "";
+  });
 });
 
 const initApp = () => {
@@ -115,75 +125,71 @@ const initApp = () => {
     getUserProfileFromFirebase(myUid).then(snapshot => {
       selectNewMapWithAccess(snapshot.val());
     });
-
-    map.on("mouseenter", "points-symbol", e => {
-      map.getCanvas().style.cursor = "cell";
-    });
-    map.on("mouseleave", "points-symbol", () => {
-      map.getCanvas().style.cursor = "";
-    });
-
-    document
-      .getElementById("select-hounslow-map")
-      .addEventListener("click", () => {
-        selectNewMap("hounslowBorough");
-      });
-    document
-      .getElementById("select-richmond-map")
-      .addEventListener("click", () => {
-        selectNewMap("richmondBorough");
-      });
-
-    document.getElementById("login-btn").addEventListener("click", () => {
-      //User().btnLogin();
-      userLogin();
-    });
-
-    document.getElementById("logout-btn").addEventListener("click", () => {
-      User().btnLogout();
-    });
-
-    map.on("moveend", function(e) {
-      document.getElementById("myInput").value = "";
-    });
-
-    map.on("click", e => {
-      const features = map.queryRenderedFeatures(e.point, {
-        layers: pointsAndLineLayers
-      });
-      if (!features.length) {
-        return;
-      }
-      const feature = features[0];
-
-      if (state.settings.maps[state.settings.currentMapId].hasRelatedData) {
-        const obId = feature.properties.OBJECTID + feature.geometry.type;
-        fetchLastFirebaseRelatedData(obId);
-      }
-      const p = feature.properties;
-      const popupTitle = p.ASSET || p.Asset || p.asset;
-      //const popupFeatureContent = propSet(feature)
-      //document.getElementById("popup-feature-template").innerHTML = propSet(feature)
-      const modalContent = `${propSet(feature.properties)}</p>`;
-      const popupContent = `<h4>${popupTitle}</h4><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
-        Details ...</button>`;
-      //const popupContent = `<img id="related-image" src="example-photo.jpg"/>`
-      document.querySelector(".modal-feature-attr").innerHTML = modalContent;
-      document.querySelector(".modal-title").innerHTML = popupTitle;
-      const popup = new mapboxgl.Popup({
-        offset: [0, -15]
-      })
-        .setLngLat(e.lngLat)
-        .setHTML(popupContent)
-        .addTo(map);
-    });
   };
 
   const loggedOut = () => {
     //logged out func
     console.log("logged out - callback");
   };
+
   myUser.OnAuthChangedListener(loggedIn, loggedOut);
+};
+
+const attachMapListeners = () => {
+  document
+    .getElementById("select-hounslow-map")
+    .addEventListener("click", () => {
+      selectNewMap("hounslowBorough");
+    });
+  document
+    .getElementById("select-richmond-map")
+    .addEventListener("click", () => {
+      selectNewMap("richmondBorough");
+    });
+
+  document.getElementById("login-btn").addEventListener("click", () => {
+    //User().btnLogin();
+    userLogin();
+  });
+
+  document.getElementById("logout-btn").addEventListener("click", () => {
+    User().btnLogout();
+  });
+
+  map.on("moveend", function(e) {
+    document.getElementById("myInput").value = "";
+  });
+
+  map.on("click", e => {
+    const features = map.queryRenderedFeatures(e.point, {
+      layers: pointsAndLineLayers
+    });
+    if (!features.length) {
+      return;
+    }
+    const feature = features[0];
+
+    if (state.settings.maps[state.settings.currentMapId].hasRelatedData) {
+      const obId = feature.properties.OBJECTID + feature.geometry.type;
+      fetchLastFirebaseRelatedData(obId);
+    }
+    const p = feature.properties;
+    const popupTitle = p.ASSET || p.Asset || p.asset;
+    //const popupFeatureContent = propSet(feature)
+    //document.getElementById("popup-feature-template").innerHTML = propSet(feature)
+    const modalContent = `${propSet(feature.properties)}</p>`;
+    const popupContent = `<h4>${popupTitle}</h4><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+        Details ...</button>`;
+    //const popupContent = `<img id="related-image" src="example-photo.jpg"/>`
+    document.querySelector(".modal-feature-attr").innerHTML = modalContent;
+    document.querySelector(".modal-title").innerHTML = popupTitle;
+    const popup = new mapboxgl.Popup({
+      offset: [0, -15]
+    })
+      .setLngLat(e.lngLat)
+      .setHTML(popupContent)
+      .addTo(map);
+  });
 };
 
 const map = new mapboxgl.Map({
@@ -395,12 +401,6 @@ const initFirebase = () => {
   return firebase.database();
 };
 
-/*
-firebase.initializeApp(fireBaseconfig);
-const fbDatabase = firebase.database();
-armIsStyleLoaded();
-*/
-
 const userLogin = () => {
   User()
     .btnLogin()
@@ -419,10 +419,6 @@ const getUserProfileFromFirebase = userId => {
     .ref(`App/Users/${userId}/`)
     .once("value");
 };
-
-// --- setup listeners---
-
-//  ----------- setup map controls -----------
 
 // --- search auto complete ---
 
