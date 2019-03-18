@@ -177,7 +177,9 @@ const attachMapListeners = () => {
     const popupTitle = p.ASSET || p.Asset || p.asset;
     //const popupFeatureContent = propSet(feature)
     //document.getElementById("popup-feature-template").innerHTML = propSet(feature)
-    const modalContent = `${propSet(feature.properties)}</p>`;
+    const modalContent = `${propSet(
+      feature.properties
+    )}</p><div class="propsetPhoto"></div>`;
     const popupContent = `<h4>${popupTitle}</h4><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
         Details ...</button>`;
     //const popupContent = `<img id="related-image" src="example-photo.jpg"/>`
@@ -189,7 +191,26 @@ const attachMapListeners = () => {
       .setLngLat(e.lngLat)
       .setHTML(popupContent)
       .addTo(map);
+    //attachPropsetPhotoIfExists(feature.properties);
+    const storage = firebase.storage();
+    const pathRef = storage.ref("hounslow/300x400/");
+    const photoParentEl = document.querySelector(".modal-feature-photo");
+    if (p.Photo || p.PHOTO) {
+      // .modal-feature-photo
+      const photoId = p.Photo || p.PHOTO;
+      fetchPhotoFromFBStorage(photoParentEl, pathRef, photoId);
+    } else {
+      photoParentEl.src = "";
+    }
   });
+};
+
+const attachPropsetPhotoIfExists = propset => {
+  let el = "";
+  if (propset.Photo || propset.PHOTO) {
+    el = `<P>Photo here!</p>`;
+  }
+  return el;
 };
 
 const map = new mapboxgl.Map({
@@ -347,7 +368,7 @@ const fetchLastFirebaseRelatedData = obId => {
       const propObject = Object.values(snap.val())[0];
       if (propObject) {
         //document.getElementById("reldata").innerHTML = propSet(propObject)
-        let relatedDataContent = `<h4>Related Data</h4>`;
+        let relatedDataContent = `<h4>latest Survey</h4>`;
         relatedDataContent += propSet(propObject);
         document.querySelector(
           ".modal-related-data"
@@ -355,25 +376,30 @@ const fetchLastFirebaseRelatedData = obId => {
       }
       const storage = firebase.storage();
       const pathRef = storage.ref("hounslow/thumbnails/");
-      pathRef
-        .child("example-photo.jpg")
-        .getDownloadURL()
-        .then(url => {
-          fetch(url)
-            .then(response => {
-              //alert("blobReturned!:", url)
-              return response.blob();
-            })
-            .then(imageBlob => {
-              //alert ("blob then ..")
-              const el = document.querySelector(".modal-related-image");
-              el.src = URL.createObjectURL(imageBlob);
-              el.style.width = "100%";
-              //document.getElementById('related-image').src ="example-photo.jpg"
-            })
-            .catch(error => {
-              //alert ("Error!:", error.message)
-            });
+      const photoParentEl = document.querySelector(".modal-related-image");
+      fetchPhotoFromFBStorage(photoParentEl, pathRef, "example-photo.jpg");
+    });
+};
+
+const fetchPhotoFromFBStorage = (parentEl, myPathRef, photoId) => {
+  myPathRef
+    .child(photoId)
+    .getDownloadURL()
+    .then(url => {
+      fetch(url)
+        .then(response => {
+          //alert("blobReturned!:", url)
+          return response.blob();
+        })
+        .then(imageBlob => {
+          //alert ("blob then ..")
+          //const el = document.querySelector(".modal-related-image");
+          parentEl.src = URL.createObjectURL(imageBlob);
+          parentEl.style.width = "100%";
+          //document.getElementById('related-image').src ="example-photo.jpg"
+        })
+        .catch(error => {
+          //alert ("Error!:", error.message)
         });
     });
 };
