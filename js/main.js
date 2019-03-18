@@ -108,6 +108,15 @@ const selectNewMapWithAccess = userProfile => {
 document.addEventListener("DOMContentLoaded", function(event) {
   initApp();
 
+  document.getElementById("login-btn").addEventListener("click", () => {
+    //User().btnLogin();
+    console.log("btnlogin");
+    userLogin();
+  });
+
+  document.getElementById("logout-btn").addEventListener("click", () => {
+    User().btnLogout();
+  });
   map.on("mouseenter", "points-symbol", e => {
     map.getCanvas().style.cursor = "cell";
   });
@@ -146,15 +155,6 @@ const attachMapListeners = () => {
     .addEventListener("click", () => {
       selectNewMap("richmondBorough");
     });
-
-  document.getElementById("login-btn").addEventListener("click", () => {
-    //User().btnLogin();
-    userLogin();
-  });
-
-  document.getElementById("logout-btn").addEventListener("click", () => {
-    User().btnLogout();
-  });
 
   map.on("moveend", function(e) {
     document.getElementById("myInput").value = "";
