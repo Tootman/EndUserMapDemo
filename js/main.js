@@ -37,6 +37,7 @@ state.settings.maps.hounslowBorough = {
 state.settings.currentMapId = "hounslowBorough";
 state.sitesQueryResult = {};
 state.fbDatabase = {};
+state.userProfile = {};
 
 const loadSiteNamesDatasetLayer = datasetId => {
   const url = `https://api.mapbox.com/datasets/v1/dansimmons/${datasetId}/features?access_token=${
@@ -118,7 +119,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     User().btnLogout();
   });
   map.on("mouseenter", "points-symbol", e => {
-    map.getCanvas().style.cursor = "cell";
+    map.getCanvas().style.cursor = "default";
   });
   map.on("mouseleave", "points-symbol", () => {
     map.getCanvas().style.cursor = "";
@@ -132,7 +133,8 @@ const initApp = () => {
   const loggedIn = myUid => {
     // logged in Func
     getUserProfileFromFirebase(myUid).then(snapshot => {
-      selectNewMapWithAccess(snapshot.val());
+      state.userProfile = snapshot.val();
+      selectNewMapWithAccess(state.userProfile);
     });
   };
 
@@ -180,8 +182,8 @@ const attachMapListeners = () => {
     const modalContent = `${propSet(
       feature.properties
     )}</p><div class="propsetPhoto"></div>`;
-    const popupContent = `<h4>${popupTitle}</h4><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
-        Details ...</button>`;
+    const popupContent = `<dt>${popupTitle}</dt><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+        more...</button>`;
     //const popupContent = `<img id="related-image" src="example-photo.jpg"/>`
     document.querySelector(".modal-feature-attr").innerHTML = modalContent;
     document.querySelector(".modal-title").innerHTML = popupTitle;
@@ -192,13 +194,17 @@ const attachMapListeners = () => {
       .setHTML(popupContent)
       .addTo(map);
     //attachPropsetPhotoIfExists(feature.properties);
-    const storage = firebase.storage();
-    const pathRef = storage.ref("hounslow/300x400/");
     const photoParentEl = document.querySelector(".modal-feature-photo");
-    if (p.Photo || p.PHOTO) {
+    if ((p.Photo || p.PHOTO) && state.userProfile.fbStoragePhotosPath) {
+      const storage = firebase.storage();
+      const pathRef = storage.ref(state.userProfile.fbStoragePhotosPath);
       // .modal-feature-photo
       const photoId = p.Photo || p.PHOTO;
-      fetchPhotoFromFBStorage(photoParentEl, pathRef, photoId);
+      fetchPhotoFromFBStorage(
+        photoParentEl,
+        pathRef,
+        photoId
+      );
     } else {
       photoParentEl.src = "";
     }
@@ -257,16 +263,14 @@ pointsAndLineLayers.push("points-symbol");
 const allLayers = pointsAndLineLayers;
 allLayers.push("polygons");
 
-/*
 lineLayers.map(layer => {
   map.on("mouseenter", layer, e => {
-    map.getCanvas().style.cursor = "cell";
+    map.getCanvas().style.cursor = "default";
   });
   map.on("mouseleave", layer, () => {
     map.getCanvas().style.cursor = "";
   });
 });
-*/
 
 //selectNewMap(state.settings.currentMapId);
 //window.User = User;
@@ -410,7 +414,7 @@ const propSet = p => {
       return `<tr><td>${item}</td><td>${p[item]}</td>`;
     })
     .join("</tr>");
-  return `<table class="table table-sm table-responsive-sm table-striped">${itemList}</table>`;
+  return `<table class="table table-sm table-striped">${itemList}</table>`;
 };
 
 const fireBaseconfig = {
@@ -434,7 +438,8 @@ const userLogin = () => {
       console.log("some final stuff:", data);
       //const token = data.mapboxAccessToken
       getUserProfileFromFirebase(data.uid).then(snapshot => {
-        selectNewMapWithAccess(snapshot.val());
+        state.userProfile = snapshot.val();
+        selectNewMapWithAccess(state.userProfile);
       });
     });
 };

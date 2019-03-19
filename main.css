@@ -138,3 +138,19 @@ left: 0;
       max-height: 10em;
       overflow-y: scroll;
   }
+
+  .modal-body {
+      padding: 0rem;
+  }
+
+  h4, .h4 {
+  size: 1.1rem
+  }
+
+  .table-sm td, .table-sm th {
+ */
+    padding-left: 1em;
+    padding-right: 0em;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+}
