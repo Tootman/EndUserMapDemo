@@ -3,7 +3,7 @@
 
 // --- setup state  -----
 
-alert("End User Map v 0.9.019");
+alert("End User Map v 0.9.020");
 const state = {};
 state.settings = {};
 state.sitesFeatureCollection = {};
@@ -118,12 +118,15 @@ document.addEventListener("DOMContentLoaded", function(event) {
   document.getElementById("logout-btn").addEventListener("click", () => {
     User().btnLogout();
   });
+
+
   map.on("mouseenter", "points-symbol", e => {
     map.getCanvas().style.cursor = "default";
   });
   map.on("mouseleave", "points-symbol", () => {
     map.getCanvas().style.cursor = "";
   });
+  
 });
 
 const initApp = () => {
@@ -196,15 +199,16 @@ const attachMapListeners = () => {
     //attachPropsetPhotoIfExists(feature.properties);
     const photoParentEl = document.querySelector(".modal-feature-photo");
     if ((p.Photo || p.PHOTO) && state.userProfile.fbStoragePhotosPath) {
-      const storage = firebase.storage();
-      const pathRef = storage.ref(state.userProfile.fbStoragePhotosPath);
+      //const storage = firebase.storage();
+      //const pathRef = storage.ref(state.userProfile.fbStoragePhotosPath);
+      const pathRef = state.userProfile.fbStoragePhotosPath;
       // .modal-feature-photo
       const photoId = p.Photo || p.PHOTO;
-      fetchPhotoFromFBStorage(
-        photoParentEl,
-        pathRef,
-        photoId
-      );
+      fetchPhotoFromFBStorage({
+        parentEl: photoParentEl,
+        path: state.userProfile.fbStoragePhotosPath,
+        photoId: photoId
+      });
     } else {
       photoParentEl.src = "";
     }
@@ -372,21 +376,25 @@ const fetchLastFirebaseRelatedData = obId => {
       const propObject = Object.values(snap.val())[0];
       if (propObject) {
         //document.getElementById("reldata").innerHTML = propSet(propObject)
-        let relatedDataContent = `<h4>latest Survey</h4>`;
+        let relatedDataContent = `<h4>Latest update</h4>`;
         relatedDataContent += propSet(propObject);
         document.querySelector(
           ".modal-related-data"
         ).innerHTML = relatedDataContent;
       }
-      const storage = firebase.storage();
-      const pathRef = storage.ref("hounslow/thumbnails/");
-      const photoParentEl = document.querySelector(".modal-related-image");
-      fetchPhotoFromFBStorage(photoParentEl, pathRef, "example-photo.jpg");
+
+      fetchPhotoFromFBStorage({
+        parentEl: document.querySelector(".modal-related-image"),
+        path: "hounslow/thumbnails/",
+        photoId: "example-photo.jpg"
+      });
     });
 };
 
-const fetchPhotoFromFBStorage = (parentEl, myPathRef, photoId) => {
-  myPathRef
+const fetchPhotoFromFBStorage = ({ parentEl, path, photoId }) => {
+  const storage = firebase.storage();
+  const pathRef = storage.ref(path);
+  pathRef
     .child(photoId)
     .getDownloadURL()
     .then(url => {
