@@ -119,14 +119,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
     User().btnLogout();
   });
 
-
+  /*
   map.on("mouseenter", "points-symbol", e => {
     map.getCanvas().style.cursor = "default";
   });
   map.on("mouseleave", "points-symbol", () => {
     map.getCanvas().style.cursor = "";
   });
-  
+ */
 });
 
 const initApp = () => {
@@ -267,13 +267,26 @@ pointsAndLineLayers.push("points-symbol");
 const allLayers = pointsAndLineLayers;
 allLayers.push("polygons");
 
-lineLayers.map(layer => {
-  map.on("mouseenter", layer, e => {
+/*
+
+*/
+map.on("load", e => {
+  map.on("mouseenter", "points-symbol", e => {
     map.getCanvas().style.cursor = "default";
   });
-  map.on("mouseleave", layer, () => {
+  map.on("mouseleave", "points-symbol", () => {
     map.getCanvas().style.cursor = "";
   });
+  lineLayers.map(layer => {
+    map.on("mouseenter", layer, e => {
+      map.getCanvas().style.cursor = "default";
+    });
+    map.on("mouseleave", layer, () => {
+      map.getCanvas().style.cursor = "";
+    });
+  });
+
+  console.log("mapresources loaded");
 });
 
 //selectNewMap(state.settings.currentMapId);
