@@ -1,9 +1,8 @@
 "use strict";
 //
-
 // --- setup state  -----
 
-alert("End User Map v 0.9.020");
+alert("End User Map v 0.9.022");
 const state = {};
 state.settings = {};
 state.sitesFeatureCollection = {};
@@ -86,6 +85,7 @@ const armIsStyleLoaded = () => {
 
 const selectNewMap = mapID => {
   map.setStyle(state.settings.maps[mapID].url);
+  document.querySelector("#satellite-layer-chkbox").checked = false;
   state.settings.currentMapId = mapID; // fudge - come back to
   map.on("data", armIsStyleLoaded);
   document.getElementById("navbarToggler").classList.remove("show");
@@ -95,6 +95,7 @@ const selectNewMap = mapID => {
 const selectNewMapWithAccess = userProfile => {
   mapboxgl.accessToken = userProfile.mapboxAccessToken;
   map.setStyle(userProfile.mapboxStyleId);
+  document.querySelector("#satellite-layer-chkbox").checked = false;
   //state.settings.currentMapId = mapID; // fudge - come back to
   map.on("data", armIsStyleLoaded);
   //document.getElementById("navbarToggler").classList.remove("show");
@@ -116,7 +117,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
   });
 
   document.getElementById("logout-btn").addEventListener("click", () => {
-    User().btnLogout();
+    userLogout();
   });
 
   /*
@@ -137,12 +138,27 @@ const initApp = () => {
     // logged in Func
     getUserProfileFromFirebase(myUid).then(snapshot => {
       state.userProfile = snapshot.val();
+      document.getElementById("Login-status-message").innerHTML = `Hi ${
+        state.userProfile.userName
+      }`;
+      document.getElementById("login-btn").style.display = "none";
+      document.getElementById("logout-btn").style.display = "block";
+      document.getElementById("login-form").style.display = "none";
+      document.querySelector("canvas").style.display = "block";
+      document.getElementById("mapsplash").style.display = "none";
       selectNewMapWithAccess(state.userProfile);
     });
   };
 
   const loggedOut = () => {
     //logged out func
+    document.getElementById("Login-status-message").innerHTML =
+      "Bye - you have now signed out";
+    document.getElementById("login-btn").style.display = "block";
+    document.getElementById("logout-btn").style.display = "none";
+    document.getElementById("login-form").style.display = "block";
+    document.querySelector("canvas").style.display = "none";
+    document.getElementById("mapsplash").style.display = "block";
     console.log("logged out - callback");
   };
 
@@ -164,6 +180,20 @@ const attachMapListeners = () => {
   map.on("moveend", function(e) {
     document.getElementById("myInput").value = "";
   });
+
+  document
+    .querySelector("#satellite-layer-chkbox")
+    .addEventListener("change", e => {
+      if (e.target.checked) {
+        // Checkbox is checked..
+        satImageSetVisible(true);
+        console.log("tickbox checked");
+      } else {
+        // Checkbox is not checked..
+        satImageSetVisible(false);
+        console.log("tickbox notChecked");
+      }
+    });
 
   map.on("click", e => {
     const features = map.queryRenderedFeatures(e.point, {
@@ -456,12 +486,31 @@ const userLogin = () => {
   User()
     .btnLogin()
     .then(data => {
-      console.log("some final stuff:", data);
-      //const token = data.mapboxAccessToken
-      getUserProfileFromFirebase(data.uid).then(snapshot => {
-        state.userProfile = snapshot.val();
-        selectNewMapWithAccess(state.userProfile);
-      });
+      console.log("login () any final stuff:", data);
+
+      // // const token = data.mapboxAccessToken
+      //getUserProfileFromFirebase(data.uid).then(snapshot => {
+      //state.userProfile = snapshot.val();
+      // //const msg = document.getElementById("Login-status-message");
+
+      //selectNewMapWithAccess(state.userProfile);
+      //});
+    })
+    .catch(error => {
+      console.log("error in login!");
+    });
+};
+
+const userLogout = () => {
+  User()
+    .btnLogout()
+    .then(data => {
+      console.log("loggout:");
+      document.querySelector("canvas").style.display = "none";
+      document.getElementById("mapsplash").style.display = "block";
+    })
+    .catch(error => {
+      console.log("error in logout!");
     });
 };
 
@@ -470,6 +519,15 @@ const getUserProfileFromFirebase = userId => {
     .database()
     .ref(`App/Users/${userId}/`)
     .once("value");
+};
+
+const satImageSetVisible = visible => {
+  if (visible) {
+    map.setLayoutProperty("mapbox-satellite", "visibility", "visible");
+    //map.setPaintProperty('polygons', 'fill-opacity', 0.1);
+  } else {
+    map.setLayoutProperty("mapbox-satellite", "visibility", "none");
+  }
 };
 
 // --- search auto complete ---

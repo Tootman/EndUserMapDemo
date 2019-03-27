@@ -41,7 +41,7 @@ const User = function() {
   }
 
   function userSignedIn() {
-    msg.innerHTML = "you are now signed in!";
+    //msg.innerHTML = "you are now signed in!";
     pw.innerHTML = null;
     loginBtn.style.display = "none";
     logoutBtn.style.display = "block";
