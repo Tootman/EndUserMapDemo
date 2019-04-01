@@ -16,9 +16,9 @@ processing is upon entire dataset)
 - - icon dependent on point 'type'
 
 ### Features
- - Append related Data from Firebase database to infoWindow 
-  - Append related Photo from Firebase storage to infoWindow
-
+ - Append related Data from Firebase database to infoWindow
+ - Append related Photo from Firebase storage to infoWindow
+ - Option to view Sat basemap
 
 ## User guidance / notes
  - Should be intuative to use - so hopefully no (minimal) guidance/help doc needed
@@ -26,24 +26,23 @@ processing is upon entire dataset)
 ### device requirements
 
 - Connection to internet
- - Chrome browser
+ - Chrome browser for this version (mapbox-webpack version should work on most browsers)
 
 
 ### feature wish-list
 
  - Add related Data form and submit (for logged in user)
  - Add new Point (for logged in User)
-  - 
 
 ### Bugs / issues
- 
+
  - Some properties of some assets not displayed (issue with importing/serving/converting TileSet?)
  - some torn / distorted / corrupted polygons eg see Richmond terrace gdns
 
 
 ### dev notes
 
-- Not yet configured for webpack (ie no minified, scss, not transpiled to es6 from es6 -  babel, bundled )
+- configured for webpack (ie  minified, scss, transpiled to es6 from es6 -  babel, bundled - need to check )
 
 
 ### user stories
@@ -53,10 +52,17 @@ processing is upon entire dataset)
 ### Functional specification (pseudocode)
 onLoad:
   - load Mapbox style
-   - attach onClick listeners to Mapdata points, polygons, and the various seperately styled lines LayersControl
+   - attach onClick listeners to Mapdata points, polygons, and the various separately styled lines LayersControl
 
+onDOMload: todo
+
+onMapDataLoad: todo
+
+onFeatureClick: todo
+
+onUserLoginStatusChange: todo
 
 ### Technology stack
-
 Mapbox (which uses leaflet and  TileMill)
-Firebase for for map meta data (map notes, comments points, photos maybe )
+Firebase realtime database for for map meta data (map notes, comments, points, related data )
+Firebase storage for PHotos
